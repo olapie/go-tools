@@ -1,0 +1,25 @@
+- name: user
+  table: test.users
+  primaryKey: 
+    - id
+  columns:
+    id: int64
+    name: string 
+    gender: xtype.Gender
+    dob: string
+    place: xtype.Place
+    accounts: "[]string"
+    key: "[]byte"
+  jsonColumns:
+    - place
+- name: class_user
+  table: "class_users"
+  primaryKey:
+    - class_id
+    - user_id
+  columns:
+    class_id: int64
+    user_id: int64
+    created_time: time.Time
+    score: float64
+    
