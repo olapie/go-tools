@@ -1,0 +1,15 @@
+{{define "pair"}}
+
+{{$name := concat (ttn .Elem) "Set"}}
+
+type {{$name}} struct {
+	types.Set[{{.Elem}}]
+}
+
+func New{{$name}}() *{{$name}} {
+	return &{{$name}} {
+	    Set: *types.NewSet[{{.Elem}}](10),
+	}
+}
+
+{{end}}

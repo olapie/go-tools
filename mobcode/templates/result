@@ -1,0 +1,10 @@
+{{define "result"}}
+
+{{$name := concat (ttn .Elem) "E"}}
+
+type {{$name}} struct {
+    Value {{.Elem}}
+    Error *Error
+}
+
+{{end}}

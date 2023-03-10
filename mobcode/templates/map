@@ -1,0 +1,34 @@
+{{define "map"}}
+
+{{$keyName := ttn .Key }}
+{{$valueName := ttn .Value}}
+{{$name := concat $keyName $valueName "Map"}}
+{{$keyListName := concat $keyName "List"}}
+
+type {{$name}} struct {
+    nomobile.Map[{{.Key}}, {{.Value}}]
+}
+
+func New{{$name}}() *{{$name}} {
+	return &{{$name}}{
+	    Map: *nomobile.NewMap[{{.Key}}, {{.Value}}](),
+	}
+}
+
+func (m *{{$name}}) Clone() *{{$name}} {
+    return &{{$name}}{
+        Map: *m.Map.Clone(),
+    }
+}
+
+func (m *{{$name}}) InsertMap(v *{{$name}}) {
+    m.Map.InsertMap(&v.Map)
+}
+
+func (m *{{$name}}) Keys() *{{$keyListName}} {
+    return &{{$keyListName}}{
+		List: *m.Map.Keys(),
+	}
+}
+
+{{end}}

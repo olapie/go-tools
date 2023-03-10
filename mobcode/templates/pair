@@ -1,0 +1,14 @@
+{{define "pair"}}
+
+{{$name := concat (ttn .Elem) "Pair"}}
+
+type {{$name}} struct {
+    First {{.Elem}}
+    Second {{.Elem}}
+}
+
+func New{{$name}}() *{{$name}} {
+	return new({{$name}})
+}
+
+{{end}}
