@@ -19,3 +19,5 @@ https_proxy代理不是说代理服务器提供 https://xxx，而是说客户端
 所以我的理解是，http代理服务器与客户端之间不需要再加一层TLS，那样反而会有问题，这也是为什么iPhone/Android只提供设置http proxy就可以了
 因为无需区分http,https请求，但是macos会区分，http发给代理1，https发给代理2
 http, https是source和destination之间的事情，与代理服务器无关，不是说https代理服务器需要额外的证书
+
+如果代理服务器需要作为中间人查看https流量，则需要额外的证书对destination返回的数据进行重新签名，并返回给source，当然需要source信任代理的证书，参考charles,mitmproxy等软件
