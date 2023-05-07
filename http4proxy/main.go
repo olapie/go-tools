@@ -26,8 +26,9 @@ func main() {
 	flag.IntVar(&arguments.securityPort, "security_port", 8443, "Proxy server security port")
 	flag.Parse()
 
-	go startHTTPProxy()
-	startHTTPSProxy()
+	// 没有作用，客户端发送的非TLS形式的CONNECT命令，该代理就无法处理
+	//go startHTTPSProxy()
+	startHTTPProxy()
 }
 
 func startHTTPProxy() {
