@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"go.olapie.com/tools/http4proxy/asset"
 	"io"
 	"log"
 	"net"
@@ -11,37 +12,79 @@ import (
 	"time"
 )
 
-func main() {
-	var certFile string
-	var keyFile string
-	var proto string
-	var port int
-	flag.StringVar(&certFile, "cert", "server.pem", "cert filepath")
-	flag.StringVar(&keyFile, "key", "server.key", "key filepath")
-	flag.StringVar(&proto, "proto", "https", "Proxy protocol (http or https)")
-	flag.IntVar(&port, "port", 8080, "Proxy server port")
-	flag.Parse()
-	if proto != "http" && proto != "https" {
-		log.Fatal("Protocol must be either http or https")
-	}
+var arguments = struct {
+	certFile     string
+	keyFile      string
+	port         int
+	securityPort int
+}{}
 
+func main() {
+	flag.StringVar(&arguments.certFile, "cert", "", "path to certificate pem")
+	flag.StringVar(&arguments.keyFile, "key", "", "ath to key pem")
+	flag.IntVar(&arguments.port, "port", 8080, "Proxy server port")
+	flag.IntVar(&arguments.securityPort, "security_port", 8443, "Proxy server security port")
+	flag.Parse()
+
+	go startHTTPProxy()
+	startHTTPSProxy()
+}
+
+func startHTTPProxy() {
 	server := &http.Server{
-		Addr: fmt.Sprintf(":%d", port),
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.Method == http.MethodConnect {
-				handleTunneling(w, r)
-			} else {
-				handleHTTP(w, r)
-			}
-		}),
+		Addr:    fmt.Sprintf(":%d", arguments.port),
+		Handler: http.HandlerFunc(handle),
 		// Disable HTTP/2.
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
 	}
+	log.Println("Proxy server listening at", server.Addr)
+	log.Fatal(server.ListenAndServe())
+}
 
-	if proto == "http" {
-		log.Fatal(server.ListenAndServe())
+func startHTTPSProxy() {
+	if arguments.certFile != "" {
+		server := &http.Server{
+			Addr:    fmt.Sprintf(":%d", arguments.securityPort),
+			Handler: http.HandlerFunc(handle),
+			//// Disable HTTP/2.
+			//TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
+			//TLSConfig: &tls.Config{
+			//	MinVersion: tls.VersionTLS13,
+			//},
+		}
+		log.Println(arguments.certFile, arguments.keyFile)
+		log.Println("Proxy secure server listening at", server.Addr)
+		log.Fatal(server.ListenAndServeTLS(arguments.certFile, arguments.keyFile))
+		return
+	}
+
+	cert, err := tls.X509KeyPair(asset.CertPEM, asset.KeyPEM)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		MinVersion:   tls.VersionTLS13,
+	}
+
+	server := http.Server{
+		TLSConfig: tlsConfig,
+		Addr:      fmt.Sprintf(":%d", arguments.securityPort),
+		Handler:   http.HandlerFunc(handle),
+		// Disable HTTP/2.
+		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
+	}
+	log.Println("Proxy secure server listening at", server.Addr)
+	log.Fatal(server.ListenAndServeTLS("", ""))
+}
+
+func handle(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.Method, r.URL)
+	if r.Method == http.MethodConnect {
+		handleTunneling(w, r)
 	} else {
-		log.Fatal(server.ListenAndServeTLS(certFile, keyFile))
+		handleHTTP(w, r)
 	}
 }
 
