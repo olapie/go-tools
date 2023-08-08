@@ -2,8 +2,9 @@ package main
 
 import (
 	"embed"
-	"go.olapie.com/utils"
 	"text/template"
+
+	"go.olapie.com/utils"
 )
 
 //go:embed template

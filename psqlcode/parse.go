@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"go.olapie.com/log"
 	"gopkg.in/yaml.v2"
+	"log"
 )
 
 func ParseYAML(filename string) []*RepoModel {

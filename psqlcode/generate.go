@@ -2,11 +2,11 @@ package main
 
 import (
 	"bytes"
-	"go.olapie.com/utils"
 	"go/format"
 	"os"
 
-	"go.olapie.com/log"
+	"go.olapie.com/utils"
+	"log"
 )
 
 const generateTestCode = `
@@ -127,7 +127,7 @@ func generateSQLForEntity(r *RepoModel) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Infof("Generate repo %s", r.Name)
+	log.Printf("Generate repo %s\n", r.Name)
 
 	b.Reset()
 	err = globalTemplate.ExecuteTemplate(&b, testTplName, m)
@@ -144,5 +144,5 @@ func generateSQLForEntity(r *RepoModel) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Infof("Generate repo test %s", r.Name)
+	log.Printf("Generate repo test %s\n", r.Name)
 }

@@ -3,13 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go.olapie.com/ola/headers"
 	"log"
 	"math/rand"
 	"net"
 	"net/http"
 	"strconv"
-
-	"go.olapie.com/rpcx/httpx"
 )
 
 func main() {
@@ -23,7 +22,7 @@ func main() {
 	password := fmt.Sprint(rand.Int31() % 1e3)
 	fmt.Println("User:", user)
 	fmt.Println("Password:", password)
-	userToAuthorization := httpx.CreateUserAuthorizations(map[string]string{user: password})
+	userToAuthorization := headers.CreateUserAuthorizations(map[string]string{user: password})
 
 	fs := http.FileServer(http.Dir(dir))
 	l, err := net.Listen("tcp", addr)
@@ -33,7 +32,7 @@ func main() {
 	}
 	log.Println("http://" + l.Addr().String())
 	err = http.Serve(l, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		reqAuth := httpx.GetAuthorization(req.Header)
+		reqAuth := headers.GetAuthorization(req.Header)
 		for u, auth := range userToAuthorization {
 			if auth == reqAuth {
 				log.Println(u)
@@ -41,7 +40,7 @@ func main() {
 				return
 			}
 		}
-		w.Header().Set(httpx.KeyWWWAuthenticate, "Basic realm="+strconv.Quote("olapie"))
+		w.Header().Set(headers.KeyWWWAuthenticate, "Basic realm="+strconv.Quote("olapie"))
 		w.WriteHeader(http.StatusUnauthorized)
 	}))
 	log.Println(err)

@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"embed"
 	_ "embed"
-	"go.olapie.com/types"
-	"go.olapie.com/utils"
 	"html/template"
 	"log"
 	"os"
 	"strings"
+
+	"go.olapie.com/types"
+	"go.olapie.com/utils"
 )
 
 //go:embed templates/*

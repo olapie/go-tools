@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"go.olapie.com/utils"
 	"strings"
 
+	"go.olapie.com/utils"
 	"gopkg.in/yaml.v2"
 )
 
