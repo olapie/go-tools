@@ -7,6 +7,12 @@ import (
 	"github.com/things-go/go-socks5"
 )
 
+/**
+  SOCKS stands for SocketSecure
+  SOCKS5 supports TCP/UDP traffic, while SOCKS4 only supports TCP
+  Refer to https://oxylabs.io/blog/socks-vs-http-proxy
+*/
+
 func main() {
 	// Create a SOCKS5 server
 	server := socks5.NewServer(
