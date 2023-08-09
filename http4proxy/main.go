@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"go.olapie.com/tools/http4proxy/asset"
+	"http4proxy/asset"
 	"io"
 	"log"
 	"net"
