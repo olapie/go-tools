@@ -1,0 +1,49 @@
+{
+  "entities": [
+    {
+      "name": "user",
+      "unexposed": [
+        "password"
+      ],
+      "fields": [
+        {
+          "name": "id",
+          "type": "int64"
+        },
+        {
+          "name": "password",
+          "type": "string"
+        },
+        {
+          "name": "created_at",
+          "type": "time.Time"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "name": "user_type",
+      "type": "int",
+      "values": {
+        "guest": "0",
+        "admin": "1"
+      }
+    }
+  ],
+  "structs": [
+    {
+      "name": "sign_in_input",
+      "fields": [
+        {
+          "name": "login",
+          "type": "string"
+        },
+        {
+          "name": "password",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}
