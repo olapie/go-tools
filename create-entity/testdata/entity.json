@@ -1,0 +1,9 @@
+{
+  "imports": [ "errors", "time"],
+  "entities": {
+    "user": {
+      "id": "string,setnx",
+      "created_at": "time.Time,setnx"
+    }
+  }
+}
