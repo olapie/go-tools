@@ -5,6 +5,7 @@
 {{$implName := printf "%s%s"  .LowerName "Impl"}}
 {{$builderName := printf "%s%s"  .LowerName "Builder"}}
 {{$receiver := .Receiver}}
+{{$modifierName := printf "%s%s"  .LowerName "Modifier"}}
 
 type {{$interfaceName}} interface {
 {{range .Fields}}
@@ -14,7 +15,10 @@ Set{{.Name}}({{.VarName}} {{.Type}}) error
 {{range .Methods}}
 {{.}}
 {{end}}
+
 InstallValidator(validator any)
+
+Modifier() *{{$modifierName}}
 
 // Unsafe returns underlying fields for efficient read only. DO NOT modify the fields
 Unsafe() *{{$fieldsStructName}}
@@ -42,6 +46,12 @@ type {{$implName}} struct {
 
 func ({{$receiver}} *{{$implName}}) InstallValidator(validator any) {
     {{$receiver}}.validator = validator
+}
+
+func ({{$receiver}} *{{$implName}}) Modifier() *{{$modifierName}} {
+    return &{{$modifierName}}  {
+        impl: {{$receiver}},
+    }
 }
 
 func ({{$receiver}} *{{$implName}}) Unsafe() *{{$fieldsStructName}} {
@@ -120,6 +130,25 @@ func (b *{{$builderName}}) With{{.Name}}({{.VarName}} {{.Type}}) *{{$builderName
     return b
 }
 
+{{end}}
+
+type {{$modifierName}} struct {
+    impl *{{$implName}}
+    err error
+}
+
+func (m *{{$modifierName}}) Error() error {
+    return m.err
+}
+
+{{range .Fields}}
+func (m *{{$modifierName}}) Set{{.Name}}({{.VarName}} {{.Type}}) *{{$modifierName}} {
+    if m.err != nil {
+        return m
+    }
+    m.err = m.impl.Set{{.Name}}({{.VarName}})
+    return m
+}
 {{end}}
 
 // Restore{{$interfaceName}} restores {{$interfaceName}} from storage e.g. database
