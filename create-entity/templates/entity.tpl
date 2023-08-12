@@ -9,7 +9,7 @@
 
 type {{$interfaceName}} interface {
 {{range .Fields}}
-{{.Name}}() {{.Type}}
+Get{{.Name}}() {{.Type}}
 Set{{.Name}}({{.VarName}} {{.Type}}) error
 {{end}}
 {{range .Methods}}
@@ -60,7 +60,7 @@ func ({{$receiver}} *{{$implName}}) Unsafe() *{{$fieldsStructName}} {
 
 {{range .Fields}}
 
-func ({{$receiver}} *{{$implName}}) {{.Name}}() {{.Type}} {
+func ({{$receiver}} *{{$implName}}) Get{{.Name}}() {{.Type}} {
     return {{$receiver}}.fields.{{.Name}}
 }
 
