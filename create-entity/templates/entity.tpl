@@ -68,15 +68,15 @@ func ({{$receiver}} *{{$implName}}) Get{{.Name}}() {{.Type}} {
 }
 
 func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
-        {{if .SetEmpty}}  if len({{$receiver}}.fields.{{.Name}}) != 0 {
+        {{- if .SetEmpty}}  if len({{$receiver}}.fields.{{.Name}}) != 0 {
                 return errors.New("cannot overwrite field {{.Name}}")
             }  {{end}}
-    {{if .SetNX}}  var zero {{.Type}}
+    {{- if .SetNX}}  var zero {{.Type}}
         if {{$receiver}}.fields.{{.Name}} != zero {
             return errors.New("cannot overwrite field {{.Name}}")
-        }  {{end}}
-
-       {{$validatorName := printf "%s%s" .VarName "Validator"}}
+        }
+        {{end}}
+       {{- $validatorName := printf "%s%s" .VarName "Validator"}}
        for _, validator := range {{$receiver}}.validators {
         if {{$validatorName}}, ok := validator.({{$interfaceName}}{{.Name}}Validator); ok {
                if err := {{$validatorName}}.Validate{{.Name}}({{$receiver}}, {{.VarName}}); err != nil {
@@ -84,7 +84,6 @@ func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
                }
            }
        }
-
 
     if validator, ok := any({{$receiver}}).({{$interfaceName}}{{.Name}}Validator); ok {
             if err := validator.Validate{{.Name}}({{$receiver}}, {{.VarName}}); err != nil {
