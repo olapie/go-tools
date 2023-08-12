@@ -16,7 +16,7 @@ Set{{.Name}}({{.VarName}} {{.Type}}) error
 {{.}}
 {{end}}
 
-InstallValidator(validator any)
+AppendValidator(validator any)
 
 Modifier() *{{$modifierName}}
 
@@ -41,11 +41,14 @@ type {{$fieldsStructName}} struct {
 
 type {{$implName}} struct {
     fields {{$fieldsStructName}}
-    validator any
+    validators []any
 }
 
-func ({{$receiver}} *{{$implName}}) InstallValidator(validator any) {
-    {{$receiver}}.validator = validator
+func ({{$receiver}} *{{$implName}}) AppendValidator(validator any) {
+    if slices.Contains({{$receiver}}.validators, validator) {
+        return
+    }
+    {{$receiver}}.validators = append({{$receiver}}.validators, validator)
 }
 
 func ({{$receiver}} *{{$implName}}) Modifier() *{{$modifierName}} {
@@ -72,11 +75,16 @@ func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
         if {{$receiver}}.fields.{{.Name}} != zero {
             return errors.New("cannot overwrite field {{.Name}}")
         }  {{end}}
-    if validator, ok := {{$receiver}}.validator.({{$interfaceName}}{{.Name}}Validator); ok {
-        if err := validator.Validate{{.Name}}({{$receiver}}, {{.VarName}}); err != nil {
-            return err
-        }
-    }
+
+       {{$validatorName := printf "%s%s" .VarName "Validator"}}
+       for _, validator := range {{$receiver}}.validators {
+        if {{$validatorName}}, ok := validator.({{$interfaceName}}{{.Name}}Validator); ok {
+               if err := {{$validatorName}}.Validate{{.Name}}({{$receiver}}, {{.VarName}}); err != nil {
+                   return err
+               }
+           }
+       }
+
 
     if validator, ok := any({{$receiver}}).({{$interfaceName}}{{.Name}}Validator); ok {
             if err := validator.Validate{{.Name}}({{$receiver}}, {{.VarName}}); err != nil {
@@ -94,9 +102,9 @@ type {{$builderName}} struct {
     err error
 }
 
-func New{{$interfaceName}}Builder(validator any) *{{$builderName}} {
+func New{{$interfaceName}}Builder(validators ...any) *{{$builderName}} {
     b := new({{$builderName}})
-    b.impl.validator = validator
+    b.impl.validators = validators
     return b
 }
 
@@ -105,11 +113,14 @@ func (b *{{$builderName}}) Build() ({{$interfaceName}}, error) {
         return nil, b.err
     }
 
-    if v, ok := b.impl.validator.({{$interfaceName}}FieldsValidator); ok {
-        if err := v.ValidateFields(b.impl.fields); err != nil {
-            return nil, err
-        }
-    }
+       for _, validator := range b.impl.validators {
+        if v, ok := validator.({{$interfaceName}}FieldsValidator); ok {
+               if err := v.ValidateFields(b.impl.fields); err != nil {
+                   b.err = err
+                   return nil, err
+               }
+           }
+       }
     return &b.impl, nil
 }
 
