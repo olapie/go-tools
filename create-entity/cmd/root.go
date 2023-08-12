@@ -76,11 +76,17 @@ func Generate(fileName string) {
 			UpperName: utils.ToClassName(name),
 			LowerName: utils.ToCamel(name),
 		}
+		e.Receiver = e.LowerName[0:1]
 		for field, attr := range m {
+			if strings.HasPrefix(field, "$method") {
+				e.Methods = append(e.Methods, attr)
+				continue
+			}
 			f := &Field{
 				Name:      utils.ToClassName(field),
 				Type:      strings.Split(attr, ",")[0],
 				SetNX:     strings.Contains(attr, "setnx"),
+				SetEmpty:  strings.Contains(attr, "setempty"),
 				VarName:   utils.ToCamel(field),
 				SnakeName: utils.ToSnake(field),
 			}
@@ -89,6 +95,9 @@ func Generate(fileName string) {
 			}
 			e.Fields = append(e.Fields, f)
 		}
+		sort.Slice(e.Fields, func(i, j int) bool {
+			return e.Fields[i].Name < e.Fields[j].Name
+		})
 		entities = append(entities, e)
 	}
 
@@ -146,9 +155,10 @@ func Generate(fileName string) {
 }
 
 type Field struct {
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	SetNX bool   `json:"set_nx"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	SetNX    bool   `json:"set_nx"`
+	SetEmpty bool   `json:"set_empty"`
 
 	VarName   string `json:"var_name"`
 	SnakeName string `json:"snake_name"`
@@ -157,5 +167,7 @@ type Field struct {
 type Entity struct {
 	UpperName string
 	LowerName string
+	Receiver  string
 	Fields    []*Field `json:"fields"`
+	Methods   []string
 }

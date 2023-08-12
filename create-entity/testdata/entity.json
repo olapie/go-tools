@@ -3,7 +3,8 @@
   "entities": {
     "user": {
       "id": "string,setnx",
-      "created_at": "time.Time,setnx"
+      "created_at": "time.Time,setnx,setempty",
+      "$method1": "SetPassword(password string)"
     }
   }
 }

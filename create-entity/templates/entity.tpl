@@ -4,12 +4,17 @@
 {{$interfaceName := .UpperName}}
 {{$implName := printf "%s%s"  .LowerName "Impl"}}
 {{$builderName := printf "%s%s"  .LowerName "Builder"}}
+{{$receiver := .Receiver}}
 
 type {{$interfaceName}} interface {
 {{range .Fields}}
 {{.Name}}() {{.Type}}
 Set{{.Name}}({{.VarName}} {{.Type}}) error
 {{end}}
+{{range .Methods}}
+{{.}}
+{{end}}
+InstallValidator(validator any)
 }
 
 //{{$interfaceName}}FieldsValidator validate all fields
@@ -19,7 +24,7 @@ type {{$interfaceName}}FieldsValidator interface {
 
 {{range .Fields}}
 type {{$interfaceName}}{{.Name}}Validator interface {
-    Validate{{.Name}}({{.VarName}} {{.Type}}) error
+    Validate{{.Name}}(x {{$interfaceName}}, {{.VarName}} {{.Type}}) error
 }
 {{end}}
 
@@ -32,27 +37,36 @@ type {{$implName}} struct {
     validator any
 }
 
-{{range .Fields}}
-
-func (i *{{$implName}}) {{.Name}}() {{.Type}} {
-    return i.fields.{{.Name}}
+func ({{$receiver}} *{{$implName}}) InstallValidator(validator any) {
+    {{$receiver}}.validator = validator
 }
 
-func (i *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
-    if {{.SetNX}} {
-        var zero {{.Type}}
-        if i.fields.{{.Name}} != zero {
-            return errors.New("cannot overwrite field {{.Name}}")
-        }
-    }
+{{range .Fields}}
 
-    v, ok := i.validator.({{$interfaceName}}{{.Name}}Validator)
-    if ok {
-        if err := v.Validate{{.Name}}({{.VarName}}); err != nil {
+func ({{$receiver}} *{{$implName}}) {{.Name}}() {{.Type}} {
+    return {{$receiver}}.fields.{{.Name}}
+}
+
+func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
+        {{if .SetEmpty}}  if len({{$receiver}}.fields.{{.Name}}) != 0 {
+                return errors.New("cannot overwrite field {{.Name}}")
+            }  {{end}}
+    {{if .SetNX}}  var zero {{.Type}}
+        if {{$receiver}}.fields.{{.Name}} != zero {
+            return errors.New("cannot overwrite field {{.Name}}")
+        }  {{end}}
+    if validator, ok := {{$receiver}}.validator.({{$interfaceName}}{{.Name}}Validator); ok {
+        if err := validator.Validate{{.Name}}({{$receiver}}, {{.VarName}}); err != nil {
             return err
         }
     }
-    i.fields.{{.Name}} = {{.VarName}}
+
+    if validator, ok := any({{$receiver}}).({{$interfaceName}}{{.Name}}Validator); ok {
+            if err := validator.Validate{{.Name}}({{$receiver}}, {{.VarName}}); err != nil {
+                return err
+            }
+        }
+    {{$receiver}}.fields.{{.Name}} = {{.VarName}}
     return nil
 }
 
@@ -100,6 +114,14 @@ func (b *{{$builderName}}) With{{.Name}}({{.VarName}} {{.Type}}) *{{$builderName
 }
 
 {{end}}
+
+// Restore{{$interfaceName}} restores {{$interfaceName}} from storage e.g. database
+// Bypass validation to improve performance
+func Restore{{$interfaceName}}(fields *{{$fieldsStructName}}) {{$interfaceName}} {
+    return &{{$implName}} {
+        fields: *fields,
+    }
+}
 
 
 {{end}}
