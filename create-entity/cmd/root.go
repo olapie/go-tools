@@ -13,6 +13,8 @@ import (
 	"go/format"
 	"log"
 	"os"
+	"slices"
+	"sort"
 	"strings"
 	"text/template"
 )
@@ -59,6 +61,8 @@ type JSONModel struct {
 
 func Generate(fileName string) {
 
+	var reservedNames = []string{"type", "struct", "map", "slices", "maps", "string", "int", "os"}
+
 	var globalTemplate = template.New("")
 
 	globalTemplate = template.Must(globalTemplate.ParseFS(templates.FS, "*.tpl"))
@@ -80,10 +84,17 @@ func Generate(fileName string) {
 				VarName:   utils.ToCamel(field),
 				SnakeName: utils.ToSnake(field),
 			}
+			if slices.Contains(reservedNames, f.VarName) {
+				f.VarName = f.VarName + "Val"
+			}
 			e.Fields = append(e.Fields, f)
 		}
 		entities = append(entities, e)
 	}
+
+	sort.Slice(entities, func(i, j int) bool {
+		return entities[i].LowerName < entities[j].LowerName
+	})
 
 	var b bytes.Buffer
 	for _, e := range entities {
@@ -96,9 +107,22 @@ func Generate(fileName string) {
 
 	output := "package entity\n"
 	output += "import(\n"
+
+	var shortImports []string
+	var longImports []string
 	for _, s := range jsonModel.Imports {
-		output += fmt.Sprintf("\"%s\"\n", s)
+		s = fmt.Sprintf("\"%s\"", s)
+		if strings.Contains(s, ".") {
+			longImports = append(longImports, s)
+		} else {
+			shortImports = append(shortImports, s)
+		}
 	}
+	sort.Strings(shortImports)
+	sort.Strings(longImports)
+	output += strings.Join(shortImports, "\n")
+	output += "\n\n"
+	output += strings.Join(longImports, "\n")
 	output += ")\n"
 	output += b.String()
 	for {
