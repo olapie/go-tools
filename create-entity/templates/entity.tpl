@@ -15,6 +15,9 @@ Set{{.Name}}({{.VarName}} {{.Type}}) error
 {{.}}
 {{end}}
 InstallValidator(validator any)
+
+// Unsafe returns underlying fields for efficient read only. DO NOT modify the fields
+Unsafe() *{{$fieldsStructName}}
 }
 
 //{{$interfaceName}}FieldsValidator validate all fields
@@ -39,6 +42,10 @@ type {{$implName}} struct {
 
 func ({{$receiver}} *{{$implName}}) InstallValidator(validator any) {
     {{$receiver}}.validator = validator
+}
+
+func ({{$receiver}} *{{$implName}}) Unsafe() *{{$fieldsStructName}} {
+    return &{{$receiver}}.fields
 }
 
 {{range .Fields}}
