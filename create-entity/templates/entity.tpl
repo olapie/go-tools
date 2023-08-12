@@ -31,7 +31,7 @@ type {{$interfaceName}}FieldsValidator interface {
 
 {{range .Fields}}
 type {{$interfaceName}}{{.Name}}Validator interface {
-    Validate{{.Name}}(x {{$interfaceName}}, {{.VarName}} {{.Type}}) error
+    Validate{{.Name}}({{$receiver}} {{$interfaceName}}, {{.VarName}} {{.Type}}) error
 }
 {{end}}
 
