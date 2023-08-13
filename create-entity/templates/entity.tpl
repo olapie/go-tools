@@ -26,7 +26,7 @@ Unsafe() *{{$fieldsStructName}}
 
 //{{$interfaceName}}FieldsValidator validate all fields
 type {{$interfaceName}}FieldsValidator interface {
-    ValidateFields(fields {{$fieldsStructName}}) error
+    ValidateFields(fields *{{$fieldsStructName}}) error
 }
 
 {{range .Fields}}
@@ -114,7 +114,7 @@ func (b *{{$builderName}}) Build() ({{$interfaceName}}, error) {
 
        for _, validator := range b.impl.validators {
         if v, ok := validator.({{$interfaceName}}FieldsValidator); ok {
-               if err := v.ValidateFields(b.impl.fields); err != nil {
+               if err := v.ValidateFields(&b.impl.fields); err != nil {
                    b.err = err
                    return nil, err
                }
@@ -144,10 +144,25 @@ func (b *{{$builderName}}) With{{.Name}}({{.VarName}} {{.Type}}) *{{$builderName
 
 type {{$modifierName}} struct {
     impl *{{$implName}}
+    validatedFields bool
     err error
 }
 
 func (m *{{$modifierName}}) Error() error {
+    if m.err != nil {
+        return m.err
+    }
+    if !m.validatedFields {
+        m.validatedFields = true
+        for _, validator := range m.impl.validators {
+            if v, ok := validator.({{$interfaceName}}FieldsValidator); ok {
+                   if err := v.ValidateFields(&m.impl.fields); err != nil {
+                       m.err = err
+                       break
+                   }
+               }
+           }
+    }
     return m.err
 }
 
@@ -156,6 +171,7 @@ func (m *{{$modifierName}}) Set{{.Name}}({{.VarName}} {{.Type}}) *{{$modifierNam
     if m.err != nil {
         return m
     }
+    m.validatedFields = false
     m.err = m.impl.Set{{.Name}}({{.VarName}})
     return m
 }
