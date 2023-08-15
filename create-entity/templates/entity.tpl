@@ -18,10 +18,24 @@ Set{{.Name}}({{.VarName}} {{.Type}}) error
 
 AppendValidator(validator any)
 
-Modifier() *{{$modifierName}}
+Modifier() {{$interfaceName}}Modifier
 
 // Unsafe returns underlying fields for efficient read only. DO NOT modify the fields
 Unsafe() *{{$fieldsStructName}}
+}
+
+type {{$interfaceName}}Builder interface {
+    {{range .Fields}} With{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Builder
+    {{end}}
+
+    Build() ({{$interfaceName}}, error)
+    MustBuild() {{$interfaceName}}
+}
+
+type {{$interfaceName}}Modifier interface {
+    {{range .Fields}} Set{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Modifier
+    {{end}}
+    Error() error
 }
 
 //{{$interfaceName}}FieldsValidator validate all fields
@@ -51,7 +65,7 @@ func ({{$receiver}} *{{$implName}}) AppendValidator(validator any) {
     {{$receiver}}.validators = append({{$receiver}}.validators, validator)
 }
 
-func ({{$receiver}} *{{$implName}}) Modifier() *{{$modifierName}} {
+func ({{$receiver}} *{{$implName}}) Modifier() {{$interfaceName}}Modifier {
     return &{{$modifierName}}  {
         impl: {{$receiver}},
     }
@@ -101,11 +115,22 @@ type {{$builderName}} struct {
     err error
 }
 
-func New{{$interfaceName}}Builder(validators ...any) *{{$builderName}} {
+func New{{$interfaceName}}Builder(validators ...any) {{$interfaceName}}Builder {
     b := new({{$builderName}})
     b.impl.validators = validators
     return b
 }
+
+{{range .Fields}}
+
+func (b *{{$builderName}}) With{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Builder  {
+    if b.err == nil {
+        b.err = b.impl.Set{{.Name}}({{.VarName}})
+    }
+    return b
+}
+
+{{end}}
 
 func (b *{{$builderName}}) Build() ({{$interfaceName}}, error) {
     if b.err != nil {
@@ -130,17 +155,6 @@ func (b *{{$builderName}}) MustBuild() {{$interfaceName}} {
     }
     return v
 }
-
-{{range .Fields}}
-
-func (b *{{$builderName}}) With{{.Name}}({{.VarName}} {{.Type}}) *{{$builderName}}  {
-    if b.err == nil {
-        b.err = b.impl.Set{{.Name}}({{.VarName}})
-    }
-    return b
-}
-
-{{end}}
 
 type {{$modifierName}} struct {
     impl *{{$implName}}
@@ -167,7 +181,7 @@ func (m *{{$modifierName}}) Error() error {
 }
 
 {{range .Fields}}
-func (m *{{$modifierName}}) Set{{.Name}}({{.VarName}} {{.Type}}) *{{$modifierName}} {
+func (m *{{$modifierName}}) Set{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Modifier {
     if m.err != nil {
         return m
     }

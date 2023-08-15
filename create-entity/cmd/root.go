@@ -61,7 +61,7 @@ type JSONModel struct {
 
 func Generate(fileName string) {
 
-	var reservedNames = []string{"type", "struct", "map", "slices", "maps", "string", "int", "os"}
+	var reservedNames = []string{"type", "struct", "map", "slices", "maps", "string", "int", "os", "chan", "rune", "os", "io", "reflect", "http", "byte", "bytes", "time"}
 
 	var globalTemplate = template.New("")
 
@@ -142,6 +142,7 @@ func Generate(fileName string) {
 		output = replaced
 	}
 
+	//fmt.Println(output)
 	data, err := format.Source([]byte(output))
 	if err != nil {
 		log.Fatalln(err)
