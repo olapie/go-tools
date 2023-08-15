@@ -61,7 +61,9 @@ type JSONModel struct {
 
 func Generate(fileName string) {
 
-	var reservedNames = []string{"type", "struct", "map", "slices", "maps", "string", "int", "os", "chan", "rune", "os", "io", "reflect", "http", "byte", "bytes", "time"}
+	var reservedNames = []string{"type", "struct", "map", "slices", "maps", "string", "int", "os", "chan", "rune", "os",
+		"io", "reflect", "http", "byte", "bytes", "time", "delete", "clear", "min", "max", "copy", "make", "new", "range",
+		"switch", "select", "for", "main", "return", "error", "errors", "fmt", "panic", "defer"}
 
 	var globalTemplate = template.New("")
 
