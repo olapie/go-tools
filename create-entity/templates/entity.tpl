@@ -15,6 +15,7 @@ Get{{.Name}}() {{.Type}}
 {{range .Methods}}
 {{.}}
 {{end}}
+Dirty() bool
 
 AppendValidator(validator any)
 
@@ -57,6 +58,7 @@ type {{$fieldsStructName}} struct {
 type {{$implName}} struct {
     fields {{$fieldsStructName}}
     validators []any
+    dirty bool
 }
 
 func ({{$receiver}} *{{$implName}}) AppendValidator(validator any) {
@@ -114,10 +116,15 @@ func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
             }
         }
     {{$receiver}}.fields.{{.Name}} = {{.VarName}}
+    {{$receiver}}.dirty = true
     return nil
 }
 
 {{end}}
+
+func ({{$receiver}} *{{$implName}}) Dirty() bool {
+    return {{$receiver}}.dirty
+}
 
 type {{$builderName}} struct {
     impl {{$implName}}
@@ -134,7 +141,9 @@ func New{{$interfaceName}}Builder(validators ...any) {{$interfaceName}}Builder {
 
 func (b *{{$builderName}}) With{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Builder  {
     if b.err == nil {
-        b.err = b.impl.Set{{.Name}}({{.VarName}})
+        {{if .Readonly}} b.err = b.impl.set{{.Name}}({{.VarName}})
+        {{else}}  b.err = b.impl.Set{{.Name}}({{.VarName}})
+        {{end}}
     }
     return b
 }
@@ -190,6 +199,7 @@ func (m *{{$modifierName}}) Error() error {
 }
 
 {{range .Fields}}
+{{if not .Readonly}}
 func (m *{{$modifierName}}) Set{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Modifier {
     if m.err != nil {
         return m
@@ -198,6 +208,7 @@ func (m *{{$modifierName}}) Set{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceNam
     m.err = m.impl.Set{{.Name}}({{.VarName}})
     return m
 }
+{{end}}
 {{end}}
 
 // Restore{{$interfaceName}} restores {{$interfaceName}} from storage e.g. database
