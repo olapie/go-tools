@@ -87,8 +87,9 @@ func Generate(fileName string) {
 			f := &Field{
 				Name:      utils.ToClassName(field),
 				Type:      strings.Split(attr, ",")[0],
-				SetNX:     strings.Contains(attr, "setnx"),
-				SetEmpty:  strings.Contains(attr, "setempty"),
+				SetIfZero: strings.Contains(attr, "setIfZero"),
+				SetIfNil:  strings.Contains(attr, "setIfNil"),
+				Readonly:  strings.Contains(attr, "readonly"),
 				VarName:   utils.ToCamel(field),
 				SnakeName: utils.ToSnake(field),
 			}
@@ -158,10 +159,11 @@ func Generate(fileName string) {
 }
 
 type Field struct {
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	SetNX    bool   `json:"set_nx"`
-	SetEmpty bool   `json:"set_empty"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	SetIfZero bool   `json:"set_if_zero"`
+	SetIfNil  bool   `json:"set_if_nil"`
+	Readonly  bool   `json:"readonly"`
 
 	VarName   string `json:"var_name"`
 	SnakeName string `json:"snake_name"`

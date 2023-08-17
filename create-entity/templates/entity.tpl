@@ -10,7 +10,7 @@
 type {{$interfaceName}} interface {
 {{range .Fields}}
 Get{{.Name}}() {{.Type}}
-Set{{.Name}}({{.VarName}} {{.Type}}) error
+{{ if not .Readonly }} Set{{.Name}}({{.VarName}} {{.Type}}) error {{end}}
 {{end}}
 {{range .Methods}}
 {{.}}
@@ -27,13 +27,14 @@ Unsafe() *{{$fieldsStructName}}
 type {{$interfaceName}}Builder interface {
     {{range .Fields}} With{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Builder
     {{end}}
-
     Build() ({{$interfaceName}}, error)
     MustBuild() {{$interfaceName}}
 }
 
 type {{$interfaceName}}Modifier interface {
-    {{range .Fields}} Set{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Modifier
+    {{range .Fields}}
+
+      {{- if not .Readonly }} Set{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Modifier {{end}}
     {{end}}
     Error() error
 }
@@ -81,15 +82,23 @@ func ({{$receiver}} *{{$implName}}) Get{{.Name}}() {{.Type}} {
     return {{$receiver}}.fields.{{.Name}}
 }
 
+{{if .Readonly}}
+
+func ({{$receiver}} *{{$implName}}) set{{.Name}}({{.VarName}} {{.Type}}) error {
+
+{{else}}
+
 func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
-        {{- if .SetEmpty}}  if len({{$receiver}}.fields.{{.Name}}) != 0 {
+        {{- if .SetIfNil}}  if {{$receiver}}.fields.{{.Name}} != nil {
                 return errors.New("cannot overwrite field {{.Name}}")
-            }  {{end}}
-    {{- if .SetNX}}  var zero {{.Type}}
-        if {{$receiver}}.fields.{{.Name}} != zero {
-            return errors.New("cannot overwrite field {{.Name}}")
-        }
+            }
+        {{else if .SetIfZero}}  var zero {{.Type}}
+            if {{$receiver}}.fields.{{.Name}} != zero {
+                return errors.New("cannot overwrite field {{.Name}}")
+            }
         {{end}}
+{{end}}
+
        {{- $validatorName := printf "%s%s" .VarName "Validator"}}
        for _, validator := range {{$receiver}}.validators {
         if {{$validatorName}}, ok := validator.({{$interfaceName}}{{.Name}}Validator); ok {

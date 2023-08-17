@@ -2,8 +2,10 @@
   "imports": [ "errors", "time"],
   "entities": {
     "user": {
-      "id": "string,setnx",
-      "created_at": "time.Time,setnx,setempty",
+      "id": "string,readonly",
+      "order_ids": "[]string,setIfNil",
+      "gender": "int,setIfZero",
+      "created_at": "time.Time,readonly",
       "$method1": "SetPassword(password string)"
     }
   }
