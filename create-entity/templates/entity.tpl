@@ -52,7 +52,7 @@ type {{$interfaceName}}{{.Name}}Validator interface {
 {{end}}
 
 type {{$fieldsStructName}} struct {
-{{range .Fields}}{{.Name}} {{.Type}} `json:"{{.SnakeName}},omitempty"`
+{{range .Fields}}{{.Name}} {{.Type}} `json:"{{.SnakeName}},omitempty" bson:"{{.BsonName}},omitempty"`
 {{end}}}
 
 type {{$implName}} struct {

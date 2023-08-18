@@ -79,6 +79,7 @@ func Generate(fileName string) {
 			LowerName: utils.ToCamel(name),
 		}
 		e.Receiver = e.LowerName[0:1]
+		var hasBsonKey bool
 		for field, attr := range m {
 			if strings.HasPrefix(field, "$method") {
 				e.Methods = append(e.Methods, attr)
@@ -92,6 +93,15 @@ func Generate(fileName string) {
 				Readonly:  strings.Contains(attr, "readonly"),
 				VarName:   utils.ToCamel(field),
 				SnakeName: utils.ToSnake(field),
+			}
+			if strings.Contains(attr, "bsonKey") {
+				if hasBsonKey {
+					log.Fatalf("entity %s has more than one bsonKey", e.LowerName)
+				}
+				f.BsonName = "_id"
+				hasBsonKey = true
+			} else {
+				f.BsonName = f.SnakeName
 			}
 			if slices.Contains(reservedNames, f.VarName) {
 				f.VarName = f.VarName + "Val"
@@ -167,6 +177,7 @@ type Field struct {
 
 	VarName   string `json:"var_name"`
 	SnakeName string `json:"snake_name"`
+	BsonName  string `json:"bson_name"`
 }
 
 type Entity struct {

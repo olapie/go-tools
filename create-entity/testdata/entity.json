@@ -2,7 +2,7 @@
   "imports": [ "errors", "time"],
   "entities": {
     "user": {
-      "id": "string,readonly",
+      "id": "string,readonly,bsonKey",
       "order_ids": "[]string,setIfNil",
       "gender": "int,setIfZero",
       "created_at": "time.Time,readonly",
