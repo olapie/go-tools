@@ -122,7 +122,9 @@ func Generate(fileName string) {
 	for _, e := range entities {
 		err := globalTemplate.ExecuteTemplate(&b, "entity", e)
 		if err != nil {
-			log.Fatalln(err)
+			fmt.Println(err)
+			fmt.Println(b.String())
+			os.Exit(1)
 		}
 		log.Printf("Generate entity %s\n", e.UpperName)
 	}
@@ -158,7 +160,9 @@ func Generate(fileName string) {
 	//fmt.Println(output)
 	data, err := format.Source([]byte(output))
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println(err)
+		fmt.Println(output)
+		os.Exit(1)
 	}
 
 	os.Mkdir("gen", 0755)

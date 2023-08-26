@@ -47,7 +47,7 @@ type {{$interfaceName}}FieldsValidator interface {
 
 {{range .Fields}}
 type {{$interfaceName}}{{.Name}}Validator interface {
-    Validate{{.Name}}({{$receiver}} {{$interfaceName}}, {{.VarName}} {{.Type}}) error
+    Validate{{.Name}}({{.VarName}} {{.Type}}) ({{.Type}}, error)
 }
 {{end}}
 
@@ -91,7 +91,8 @@ func ({{$receiver}} *{{$implName}}) set{{.Name}}({{.VarName}} {{.Type}}) error {
 {{else}}
 
 func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
-        {{- if .SetIfNil}}  if {{$receiver}}.fields.{{.Name}} != nil {
+        var err error
+        {{if .SetIfNil}}  if {{$receiver}}.fields.{{.Name}} != nil {
                 return errors.New("cannot overwrite field {{.Name}}")
             }
         {{else if .SetIfZero}}  var zero {{.Type}}
@@ -104,14 +105,14 @@ func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
        {{- $validatorName := printf "%s%s" .VarName "Validator"}}
        for _, validator := range {{$receiver}}.validators {
         if {{$validatorName}}, ok := validator.({{$interfaceName}}{{.Name}}Validator); ok {
-               if err := {{$validatorName}}.Validate{{.Name}}({{$receiver}}, {{.VarName}}); err != nil {
+               if  {{.VarName}}, err = {{$validatorName}}.Validate{{.Name}}({{.VarName}}); err != nil {
                    return err
                }
            }
        }
 
     if validator, ok := any({{$receiver}}).({{$interfaceName}}{{.Name}}Validator); ok {
-            if err := validator.Validate{{.Name}}({{$receiver}}, {{.VarName}}); err != nil {
+            if {{.VarName}}, err = validator.Validate{{.Name}}({{.VarName}}); err != nil {
                 return err
             }
         }
