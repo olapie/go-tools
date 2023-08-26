@@ -87,6 +87,7 @@ func ({{$receiver}} *{{$implName}}) Get{{.Name}}() {{.Type}} {
 {{if .Readonly}}
 
 func ({{$receiver}} *{{$implName}}) set{{.Name}}({{.VarName}} {{.Type}}) error {
+        var err error
 
 {{else}}
 
