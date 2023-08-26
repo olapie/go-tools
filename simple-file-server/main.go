@@ -3,18 +3,21 @@ package main
 import (
 	"flag"
 	"fmt"
-	"go.olapie.com/ola/headers"
+	"go.olapie.com/utils"
 	"log"
 	"math/rand"
 	"net"
 	"net/http"
 	"strconv"
+
+	"go.olapie.com/ola/headers"
 )
 
 func main() {
 	var addr string
 	var dir string
-	flag.StringVar(&addr, "addr", "127.0.0.1:0", "address")
+	localIP := utils.GetPrivateIPv4(utils.GetPrivateIPv4Interface())
+	flag.StringVar(&addr, "addr", localIP.String()+":0", "address")
 	flag.StringVar(&dir, "dir", ".", "directory")
 	flag.Parse()
 
