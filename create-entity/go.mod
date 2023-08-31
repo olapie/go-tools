@@ -4,7 +4,7 @@ go 1.21.0
 
 require (
 	github.com/spf13/cobra v1.7.0
-	go.olapie.com/utils v0.4.8
+	go.olapie.com/utils v0.4.9
 )
 
 require (
