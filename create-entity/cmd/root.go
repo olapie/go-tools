@@ -92,7 +92,7 @@ func Generate(fileName string) {
 				SetIfNil:  strings.Contains(attr, "setIfNil"),
 				Readonly:  strings.Contains(attr, "readonly"),
 				VarName:   utils.ToCamel(field),
-				JsonName:  utils.ToCamel(field),
+				JsonName:  utils.ToJSONStyleCamel(field),
 			}
 			if strings.Contains(attr, "bsonKey") {
 				if hasBsonKey {
