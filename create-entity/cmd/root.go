@@ -70,7 +70,7 @@ func Generate(fileName string) {
 	globalTemplate = template.Must(globalTemplate.ParseFS(templates.FS, "*.tpl"))
 
 	var jsonModel JSONModel
-	utils.MustNil(json.Unmarshal(utils.MustGet(os.ReadFile(fileName)), &jsonModel))
+	utils.MustNoError(json.Unmarshal(utils.MustGet(os.ReadFile(fileName)), &jsonModel))
 
 	var entities []*Entity
 	for name, m := range jsonModel.Entities {
