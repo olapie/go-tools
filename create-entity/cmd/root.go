@@ -92,7 +92,7 @@ func Generate(fileName string) {
 				SetIfNil:  strings.Contains(attr, "setIfNil"),
 				Readonly:  strings.Contains(attr, "readonly"),
 				VarName:   utils.ToCamel(field),
-				SnakeName: utils.ToSnake(field),
+				JsonName:  utils.ToCamel(field),
 			}
 			if strings.Contains(attr, "bsonKey") {
 				if hasBsonKey {
@@ -101,7 +101,7 @@ func Generate(fileName string) {
 				f.BsonName = "_id"
 				hasBsonKey = true
 			} else {
-				f.BsonName = f.SnakeName
+				f.BsonName = f.JsonName
 			}
 			if slices.Contains(reservedNames, f.VarName) {
 				f.VarName = f.VarName + "Val"
@@ -179,9 +179,9 @@ type Field struct {
 	SetIfNil  bool   `json:"set_if_nil"`
 	Readonly  bool   `json:"readonly"`
 
-	VarName   string `json:"var_name"`
-	SnakeName string `json:"snake_name"`
-	BsonName  string `json:"bson_name"`
+	VarName  string `json:"var_name"`
+	JsonName string `json:"snake_name"`
+	BsonName string `json:"bson_name"`
 }
 
 type Entity struct {

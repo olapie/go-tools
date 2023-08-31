@@ -3,9 +3,9 @@
   "entities": {
     "user": {
       "id": "string,readonly,bsonKey",
-      "order_ids": "[]string,setIfNil",
+      "orderIds": "[]string,setIfNil",
       "gender": "int,setIfZero",
-      "created_at": "time.Time,readonly",
+      "createdAt": "time.Time,readonly",
       "$method1": "SetPassword(password string)"
     }
   }
