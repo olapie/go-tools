@@ -6,7 +6,7 @@ import (
 {{range .Entities}}
 
 type {{.Name}} struct {
-{{range .Fields}}   {{toStructName .Name}} {{.Type}} `json:"{{toSnake .Name}}"`
+{{range .Fields}}   {{toPascal .Name}} {{.Type}} `json:"{{toSnake .Name}}"`
 {{end}}}
 
 {{end}}

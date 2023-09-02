@@ -6,7 +6,6 @@ import (
 	"text/template"
 
 	"go.olapie.com/naming"
-	"go.olapie.com/utils"
 )
 
 type Field struct {
@@ -81,14 +80,14 @@ var globalTemplate = template.New("")
 
 func init() {
 	globalTemplate = globalTemplate.Funcs(template.FuncMap{
-		"toStructName": utils.ToClassName,
-		"toCamel":      naming.ToCamel,
-		"toSnake":      naming.ToSnake,
+		"toPascal": naming.ToPascal,
+		"toCamel":  naming.ToCamel,
+		"toSnake":  naming.ToSnake,
 		"toEntityName": func(s string) string {
-			return utils.ToClassName(s) + "Entity"
+			return naming.ToPascal(s) + "Entity"
 		},
 		"toValueName": func(s string) string {
-			return utils.ToClassName(s)
+			return naming.ToPascal(s)
 		},
 		"toBuilderName": func(s string) string {
 			return naming.ToCamel(s) + "EntityBuilder"

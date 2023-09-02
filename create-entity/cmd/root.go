@@ -76,7 +76,7 @@ func Generate(fileName string) {
 	var entities []*Entity
 	for name, m := range jsonModel.Entities {
 		e := &Entity{
-			UpperName: utils.ToClassName(name),
+			UpperName: naming.ToPascal(name),
 			LowerName: naming.ToCamel(name),
 		}
 		e.Receiver = e.LowerName[0:1]
@@ -87,7 +87,7 @@ func Generate(fileName string) {
 				continue
 			}
 			f := &Field{
-				Name:      utils.ToClassName(field),
+				Name:      naming.ToPascal(field),
 				Type:      strings.Split(attr, ",")[0],
 				SetIfZero: strings.Contains(attr, "setIfZero"),
 				SetIfNil:  strings.Contains(attr, "setIfNil"),

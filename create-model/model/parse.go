@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"go.olapie.com/naming"
-	"go.olapie.com/utils"
 )
 
 //
@@ -89,7 +88,7 @@ import (
 //	for _, e := range model.Entities {
 //		for _, f := range e.Fields {
 //			if model.ContainsType(f.Type) {
-//				f.Type = utils.ToClassName(f.Type)
+//				f.Type = naming.ToPascal(f.Type)
 //			}
 //		}
 //	}
@@ -97,7 +96,7 @@ import (
 //	for _, e := range model.Structs {
 //		for _, f := range e.Fields {
 //			if model.ContainsType(f.Type) {
-//				f.Type = utils.ToClassName(f.Type)
+//				f.Type = naming.ToPascal(f.Type)
 //			}
 //		}
 //	}
@@ -136,7 +135,7 @@ func ParseJSON(filename string) *Model {
 			return e.Fields[i].Name < e.Fields[j].Name
 		})
 
-		e.ValueName = utils.ToClassName(e.Name)
+		e.ValueName = naming.ToPascal(e.Name)
 		e.Name = e.ValueName + "Entity"
 		e.BuilderName = e.Name + "Builder"
 		for _, f := range e.Fields {
@@ -144,7 +143,7 @@ func ParseJSON(filename string) *Model {
 				f.Type = "string"
 			}
 			name := f.Name
-			f.Name = utils.ToClassName(f.Name)
+			f.Name = naming.ToPascal(f.Name)
 			if f.JsonName == "" {
 				f.JsonName = naming.ToSnake(f.Name)
 			}
@@ -168,12 +167,12 @@ func ParseJSON(filename string) *Model {
 	}
 
 	for _, e := range m.Structs {
-		e.Name = utils.ToClassName(e.Name)
+		e.Name = naming.ToPascal(e.Name)
 		for _, f := range e.Fields {
 			if f.Type == "" {
 				f.Type = "string"
 			}
-			f.Name = utils.ToClassName(f.Name)
+			f.Name = naming.ToPascal(f.Name)
 			if f.JsonName == "" {
 				f.JsonName = naming.ToSnake(f.Name)
 			}
@@ -184,10 +183,10 @@ func ParseJSON(filename string) *Model {
 	}
 
 	for _, e := range m.Enums {
-		e.Name = utils.ToClassName(e.Name)
+		e.Name = naming.ToPascal(e.Name)
 		vm := make(map[string]string)
 		for k, v := range e.Values {
-			k = e.Name + utils.ToClassName(k)
+			k = e.Name + naming.ToPascal(k)
 			vm[k] = v
 		}
 		e.Values = vm

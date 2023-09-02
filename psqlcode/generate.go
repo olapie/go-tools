@@ -5,7 +5,6 @@ import (
 	"go/format"
 	"os"
 
-	"go.olapie.com/utils"
 	"log"
 )
 
@@ -60,7 +59,7 @@ func Generate(filename string) {
 
 func getEntity(r *RepoModel) Entity {
 	var e Entity
-	e.Name = utils.ToClassName(r.Name)
+	e.Name = naming.ToPascal(r.Name)
 	for _, c := range r.Columns {
 		field := &Field{
 			Name: c.Key.(string),
@@ -92,7 +91,7 @@ func generateSQLForEntity(r *RepoModel) {
 	}
 
 	m := &Model{
-		Name:               utils.ToClassName(r.Name) + "Repo",
+		Name:               naming.ToPascal(r.Name) + "Repo",
 		Table:              r.Table,
 		Columns:            r.GetColumns(),
 		KeyParams:          r.KeyParams(),

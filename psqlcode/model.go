@@ -54,7 +54,7 @@ func (r *RepoModel) Args() string {
 	for i, c := range r.Columns {
 		name := c.Key.(string)
 		value := c.Value.(string)
-		args[i] = "v." + utils.ToClassName(name)
+		args[i] = "v." + naming.ToPascal(name)
 		if r.IsJSON(name) {
 			args[i] = "xsql.JSON(" + args[i] + ")"
 		} else if r.IsArray(value) {
@@ -152,7 +152,7 @@ func (r *RepoModel) ScanHolders() string {
 	for i, c := range r.Columns {
 		name := c.Key.(string)
 		value := c.Value.(string)
-		scanArgs[i] = "&v." + utils.ToClassName(name)
+		scanArgs[i] = "&v." + naming.ToPascal(name)
 		if r.IsJSON(name) {
 			scanArgs[i] = "xsql.JSON(" + scanArgs[i] + ")"
 		} else if r.IsArray(value) {
