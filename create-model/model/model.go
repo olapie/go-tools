@@ -5,6 +5,7 @@ import (
 	"strings"
 	"text/template"
 
+	"go.olapie.com/naming"
 	"go.olapie.com/utils"
 )
 
@@ -12,8 +13,8 @@ type Field struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
 
-	VarName   string `json:"var_name"`
-	SnakeName string `json:"snake_name"`
+	VarName  string `json:"var_name"`
+	JsonName string `json:"snake_name"`
 }
 
 type Entity struct {
@@ -81,8 +82,8 @@ var globalTemplate = template.New("")
 func init() {
 	globalTemplate = globalTemplate.Funcs(template.FuncMap{
 		"toStructName": utils.ToClassName,
-		"toCamel":      utils.ToCamel,
-		"toSnake":      utils.ToSnake,
+		"toCamel":      naming.ToCamel,
+		"toSnake":      naming.ToSnake,
 		"toEntityName": func(s string) string {
 			return utils.ToClassName(s) + "Entity"
 		},
@@ -90,10 +91,10 @@ func init() {
 			return utils.ToClassName(s)
 		},
 		"toBuilderName": func(s string) string {
-			return utils.ToCamel(s) + "EntityBuilder"
+			return naming.ToCamel(s) + "EntityBuilder"
 		},
 		"toModifierName": func(s string) string {
-			return utils.ToCamel(s) + "EntityModifier"
+			return naming.ToCamel(s) + "EntityModifier"
 		},
 		"first": func(s string) string {
 			return s[:1]

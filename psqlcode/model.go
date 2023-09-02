@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go.olapie.com/naming"
 	"strings"
 
 	"go.olapie.com/utils"
@@ -107,7 +108,7 @@ func (r *RepoModel) GetColType(col string) string {
 func (r *RepoModel) KeyParams() string {
 	params := make([]string, len(r.PrimaryKey))
 	for i, k := range r.PrimaryKey {
-		params[i] = fmt.Sprintf("%s %v", utils.ToCamel(k), r.GetColType(k))
+		params[i] = fmt.Sprintf("%s %v", naming.ToCamel(k), r.GetColType(k))
 	}
 	return strings.Join(params, ", ")
 }
@@ -117,7 +118,7 @@ func (r *RepoModel) BatchKeyParams() string {
 		return ""
 	}
 	k := r.PrimaryKey[0]
-	return fmt.Sprintf("%s []%v", utils.ToCamel(utils.Plural(k)), r.GetColType(k))
+	return fmt.Sprintf("%s []%v", naming.ToCamel(utils.Plural(k)), r.GetColType(k))
 }
 
 func (r *RepoModel) BatchKeyConditions() string {
@@ -141,7 +142,7 @@ func (r *RepoModel) GetKeys() string {
 func (r *RepoModel) KeyArgs() string {
 	args := make([]string, len(r.PrimaryKey))
 	for i, k := range r.PrimaryKey {
-		args[i] = utils.ToCamel(k)
+		args[i] = naming.ToCamel(k)
 	}
 	return strings.Join(args, ", ")
 }

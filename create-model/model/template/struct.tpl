@@ -2,7 +2,7 @@
 {{$name := toStructName .Name}}
 
 type {{$name}} struct {
-{{range .Fields}}   {{.Name}} {{.Type}} `json:"{{.SnakeName}},omitempty"`
+{{range .Fields}}   {{.Name}} {{.Type}} `json:"{{.JsonName}},omitempty"`
 {{end}}
 
 }

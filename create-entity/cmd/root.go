@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
+	"go.olapie.com/naming"
 	"go.olapie.com/utils"
 	"go/format"
 	"log"
@@ -76,7 +77,7 @@ func Generate(fileName string) {
 	for name, m := range jsonModel.Entities {
 		e := &Entity{
 			UpperName: utils.ToClassName(name),
-			LowerName: utils.ToCamel(name),
+			LowerName: naming.ToCamel(name),
 		}
 		e.Receiver = e.LowerName[0:1]
 		var hasBsonKey bool
@@ -91,8 +92,8 @@ func Generate(fileName string) {
 				SetIfZero: strings.Contains(attr, "setIfZero"),
 				SetIfNil:  strings.Contains(attr, "setIfNil"),
 				Readonly:  strings.Contains(attr, "readonly"),
-				VarName:   utils.ToCamel(field),
-				JsonName:  utils.ToJSONStyleCamel(field),
+				VarName:   naming.ToCamel(field),
+				JsonName:  naming.ToCamel(field, naming.WithoutAcronym()),
 			}
 			if strings.Contains(attr, "bsonKey") {
 				if hasBsonKey {

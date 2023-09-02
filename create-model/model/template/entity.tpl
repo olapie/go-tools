@@ -5,7 +5,7 @@
 {{$builderName := .BuilderName}}
 
 type {{$valueName}} struct {
-{{range .Fields}}{{.Name}} {{.Type}} `json:"{{.SnakeName}},omitempty"`
+{{range .Fields}}{{.Name}} {{.Type}} `json:"{{.JsonName}},omitempty"`
 {{end}}}
 
 func New{{$valueName}}() *{{$valueName}} {

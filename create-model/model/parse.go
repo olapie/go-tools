@@ -2,11 +2,13 @@ package model
 
 import (
 	"encoding/json"
-	"go.olapie.com/utils"
 	"log"
 	"os"
 	"sort"
 	"strings"
+
+	"go.olapie.com/naming"
+	"go.olapie.com/utils"
 )
 
 //
@@ -143,11 +145,11 @@ func ParseJSON(filename string) *Model {
 			}
 			name := f.Name
 			f.Name = utils.ToClassName(f.Name)
-			if f.SnakeName == "" {
-				f.SnakeName = utils.ToSnake(f.Name)
+			if f.JsonName == "" {
+				f.JsonName = naming.ToSnake(f.Name)
 			}
 			if f.VarName == "" {
-				f.VarName = utils.ToCamel(f.SnakeName)
+				f.VarName = naming.ToCamel(f.JsonName)
 			}
 
 			if e.Exported(name) {
@@ -172,11 +174,11 @@ func ParseJSON(filename string) *Model {
 				f.Type = "string"
 			}
 			f.Name = utils.ToClassName(f.Name)
-			if f.SnakeName == "" {
-				f.SnakeName = utils.ToSnake(f.Name)
+			if f.JsonName == "" {
+				f.JsonName = naming.ToSnake(f.Name)
 			}
 			if f.VarName == "" {
-				f.VarName = utils.ToCamel(f.SnakeName)
+				f.VarName = naming.ToCamel(f.JsonName)
 			}
 		}
 	}

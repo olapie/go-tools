@@ -4,6 +4,7 @@ import (
 	"embed"
 	"text/template"
 
+	"go.olapie.com/naming"
 	"go.olapie.com/utils"
 )
 
@@ -14,16 +15,16 @@ var globalTemplate = template.New("")
 func init() {
 	globalTemplate = globalTemplate.Funcs(template.FuncMap{
 		"toStructName": utils.ToClassName,
-		"toCamel":      utils.ToCamel,
-		"toSnake":      utils.ToSnake,
+		"toCamel":      naming.ToCamel,
+		"toSnake":      naming.ToSnake,
 		"toEntityName": func(s string) string {
 			return utils.ToClassName(s) + "Entity"
 		},
 		"toBuilderName": func(s string) string {
-			return utils.ToCamel(s) + "EntityBuilder"
+			return naming.ToCamel(s) + "EntityBuilder"
 		},
 		"toModifierName": func(s string) string {
-			return utils.ToCamel(s) + "EntityModifier"
+			return naming.ToCamel(s) + "EntityModifier"
 		},
 		"first": func(s string) string {
 			return s[:1]
