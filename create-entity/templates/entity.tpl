@@ -107,14 +107,14 @@ func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
        for _, validator := range {{$receiver}}.validators {
         if {{$validatorName}}, ok := validator.({{$interfaceName}}_{{.Name}}Validator); ok {
                if  {{.VarName}}, err = {{$validatorName}}.Validate{{.Name}}({{.VarName}}); err != nil {
-                   return err
+                   return fmt.Errorf("invalid {{.VarName}}: %w", err)
                }
            }
        }
 
     if validator, ok := any({{$receiver}}).({{$interfaceName}}_{{.Name}}Validator); ok {
             if {{.VarName}}, err = validator.Validate{{.Name}}({{.VarName}}); err != nil {
-                return err
+                return fmt.Errorf("invalid {{.VarName}}: %w", err)
             }
         }
     {{$receiver}}.fields.{{.Name}} = {{.VarName}}
