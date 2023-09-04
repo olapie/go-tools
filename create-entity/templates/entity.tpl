@@ -210,6 +210,18 @@ func (m *{{$modifierName}}) Set{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceNam
     m.err = m.impl.Set{{.Name}}({{.VarName}})
     return m
 }
+
+func (m *{{$modifierName}}) Set{{.Name}}P({{.VarName}} *{{.Type}}) {{$interfaceName}}Modifier {
+    if m.err != nil {
+        return m
+    }
+    if {{.VarName}} == nil {
+        return m
+    }
+    m.validatedFields = false
+    m.err = m.impl.Set{{.Name}}(*{{.VarName}})
+    return m
+}
 {{end}}
 {{end}}
 
