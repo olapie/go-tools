@@ -35,8 +35,9 @@ type {{$interfaceName}}Builder interface {
 type {{$interfaceName}}Modifier interface {
     {{range .Fields}}
 
-      {{- if not .Readonly }} Set{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Modifier {{end}}
-      {{- if not .Readonly }} Set{{.Name}}P({{.VarName}} *{{.Type}}) {{$interfaceName}}Modifier {{end}}
+      {{- if not .Readonly }} Set{{.Name}}({{.VarName}} {{.Type}}) {{$interfaceName}}Modifier
+      Set{{.Name}}P({{.VarName}} *{{.Type}}) {{$interfaceName}}Modifier
+      {{end}}
     {{end}}
     Error() error
 }
