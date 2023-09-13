@@ -2,21 +2,22 @@
 <model jsonNaming="CamelCase" bsonNaming="CamelCase">
     <import>fmt</import>
     <import>time</import>
-    <alias type="int64">OrderID</alias>
-    <value name="Order" json="true">
+    <alias type="string">Name</alias>
+    <simpletype type="int64">OrderID</simpletype>
+    <struct name="Order" json="true">
         <field type="OrderID">ID</field>
         <field type="time.Time">CreatedAt</field>
-    </value>
+    </struct>
     <entity name="OrderEntity" json="true" bson="true">
         <field type="OrderID" bson="_id" readonly="true">ID</field>
         <field type="int">Type</field>
         <field type="time.Time">CreatedAt</field>
         <method>DoSomething()</method>
     </entity>
-    <repo name="OrderRepo">
+    <interface name="OrderRepo">
         <method>Get(ctx context.Context, id OrderID)(*OrderEntity, error)</method>
-    </repo>
-    <service name="OrderService">
+    </interface>
+    <interface name="OrderService">
         <method>Get(ctx context.Context, id OrderID)(*Order, error)</method>
-    </service>
+    </interface>
 </model>

@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"go.olapie.com/utils"
 	"log"
 	"math/rand"
 	"net"
 	"net/http"
 	"strconv"
+
+	"go.olapie.com/utils"
 
 	"go.olapie.com/ola/headers"
 )

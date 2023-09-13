@@ -6,9 +6,10 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"gocode/domain"
+
 	"github.com/spf13/cobra"
 	"go.olapie.com/utils"
-	"gocode/domain"
 )
 
 // domainCmd represents the domain command

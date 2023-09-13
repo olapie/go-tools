@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
-	"go.olapie.com/naming"
-	"go.olapie.com/utils"
 	"go/format"
 	"gocode/domain/templates"
 	"log"
@@ -14,17 +12,20 @@ import (
 	"sort"
 	"strings"
 	"text/template"
+
+	"go.olapie.com/naming"
+	"go.olapie.com/utils"
 )
 
 type Model struct {
-	Imports    []string     `xml:"import"`
-	Entities   []*Entity    `xml:"entity"`
-	Aliases    []*Alias     `xml:"alias"`
-	Values     []*Value     `xml:"value"`
-	Repos      []*Interface `xml:"repo"`
-	Services   []*Interface `xml:"service"`
-	JSONNaming string       `xml:"jsonNaming,attr"`
-	BSONNaming string       `xml:"bsonNaming,attr"`
+	Imports     []string      `xml:"import"`
+	Entities    []*Entity     `xml:"entity"`
+	Aliases     []*SimpleType `xml:"alias"`
+	SimpleTypes []*SimpleType `xml:"simpletype"`
+	Structs     []*StructType `xml:"struct"`
+	Interfaces  []*Interface  `xml:"interface"`
+	JSONNaming  string        `xml:"jsonNaming,attr"`
+	BSONNaming  string        `xml:"bsonNaming,attr"`
 
 	ShortImports []string
 	LongImports  []string
@@ -48,26 +49,27 @@ type Entity struct {
 }
 
 type EntityField struct {
-	ValueField
+	StructField
 	Readonly  bool   `xml:"readonly,attr"`
 	BSON      string `xml:"bson,attr"`
 	SetIfNil  bool   `xml:"setIfNil"`
 	SetIfZero bool   `xml:"setIfZero"`
+	VarName   string
 }
 
-type Value struct {
-	Name   string       `xml:"name,attr"`
-	Fields []ValueField `xml:"field"`
+type StructType struct {
+	Name   string         `xml:"name,attr"`
+	JSON   bool           `xml:"json,attr"`
+	Fields []*StructField `xml:"field"`
 }
 
-type ValueField struct {
-	Name    string `xml:",innerxml"`
-	Type    string `xml:"type,attr"`
-	Tag     string
-	VarName string
+type StructField struct {
+	Name string `xml:",innerxml"`
+	Type string `xml:"type,attr"`
+	Tag  string
 }
 
-type Alias struct {
+type SimpleType struct {
 	Name string `xml:",innerxml"`
 	Type string `xml:"type,attr"`
 }
@@ -96,10 +98,6 @@ func parseModel(xmlFilename string) *Model {
 	if err != nil {
 		panic(err)
 	}
-	//
-	//jsonData, _ := json.Marshal(m)
-	//fmt.Println(string(jsonData))
-
 	m.Imports = append(m.Imports, "context", "fmt", "slices")
 	m.Imports = utils.UniqueSlice(m.Imports)
 	sort.Strings(m.Imports)
@@ -115,18 +113,39 @@ func parseModel(xmlFilename string) *Model {
 		return m.Aliases[i].Name < m.Aliases[j].Name
 	})
 
-	sort.Slice(m.Services, func(i, j int) bool {
-		return m.Services[i].Name < m.Services[j].Name
+	sort.Slice(m.SimpleTypes, func(i, j int) bool {
+		return m.SimpleTypes[i].Name < m.SimpleTypes[j].Name
 	})
 
-	sort.Slice(m.Repos, func(i, j int) bool {
-		return m.Repos[i].Name < m.Repos[j].Name
+	sort.Slice(m.Interfaces, func(i, j int) bool {
+		return m.Interfaces[i].Name < m.Interfaces[j].Name
 	})
 
-	for _, v := range m.Values {
+	for _, i := range m.Interfaces {
+		sort.Strings(i.Methods)
+	}
+
+	for _, v := range m.Structs {
 		sort.Slice(v.Fields, func(i, j int) bool {
 			return v.Fields[i].Name < v.Fields[j].Name
 		})
+
+		for _, f := range v.Fields {
+			f.Name = naming.ToPascal(f.Name)
+			var tags []string
+			if v.JSON {
+				jsonName := naming.ToCamel(f.Name)
+				if m.JSONNaming == "SnakeCase" {
+					jsonName = naming.ToSnake(f.Name)
+				}
+				tags = append(tags, fmt.Sprintf(`json:"%s,omitempty"`, jsonName))
+			}
+			fmt.Println(f.Name, tags)
+			if len(tags) > 0 {
+				f.Tag = fmt.Sprintf(`%s`, strings.Join(tags, " "))
+			}
+			fmt.Println(f.Name, f.Tag)
+		}
 	}
 
 	for _, e := range m.Entities {
@@ -175,14 +194,19 @@ func parseModel(xmlFilename string) *Model {
 			}
 		}
 	}
+
 	return &m
 }
 
 func Generate(xmlFilename, outputGoFilename string) {
 	m := parseModel(xmlFilename)
+	//
+	//jsonData, _ := json.Marshal(m)
+	//fmt.Println(string(jsonData))
+
 	tpl := loadTemplates()
 	output := bytes.NewBuffer(nil)
-	tplNames := []string{"import", "alias", "value", "entity", "repo", "service"}
+	tplNames := []string{"import", "alias", "simpletype", "struct", "interface", "entity"}
 	for _, name := range tplNames {
 		err := tpl.ExecuteTemplate(output, name, m)
 		if err != nil {

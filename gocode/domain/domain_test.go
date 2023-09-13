@@ -9,5 +9,5 @@ func TestGenerate(t *testing.T) {
 	//b, _ := json.Marshal(m)
 	//t.Log(string(b))
 	//
-	Generate("testdata/model.xml", "test.gen.go")
+	Generate("testdata/domain.xml", "testdata/domain.gen.go")
 }

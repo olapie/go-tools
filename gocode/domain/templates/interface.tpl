@@ -1,6 +1,6 @@
-{{define "repo"}}
+{{define "interface"}}
 
-{{range .Repos}}
+{{range .Interfaces}}
 type {{.Name}} interface {
     {{range .Methods}}
         {{.}}
