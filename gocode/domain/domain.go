@@ -33,8 +33,9 @@ type Model struct {
 
 type Entity struct {
 	Interface
-	ImplName     string
-	ImplReceiver string
+	ImplName        string
+	ImplReceiver    string
+	ValidatorPrefix string
 
 	BuilderName     string
 	BuilderImplName string
@@ -153,15 +154,17 @@ func parseModel(xmlFilename string) *Model {
 			return e.Fields[i].Name < e.Fields[j].Name
 		})
 		e.Name = naming.ToPascal(e.Name)
-		e.BuilderName = e.Name + "Builder"
-		e.ModifierName = e.Name + "Modifier"
+		name := strings.Replace(e.Name, "Entity", "", 1)
+		e.ValidatorPrefix = name
+		e.BuilderName = name + "Builder"
+		e.ModifierName = name + "Modifier"
 
-		camel := naming.ToCamel(e.Name)
+		camel := naming.ToCamel(name)
 		e.ImplReceiver = camel[:1]
 		e.ImplName = camel + "Impl"
 		e.BuilderImplName = camel + "BuilderImpl"
 		e.ModifierImplName = camel + "ModifierImpl"
-		e.FieldsName = e.Name + "Fields"
+		e.FieldsName = name + "Fields"
 		for _, f := range e.Fields {
 			f.Name = naming.ToPascal(f.Name)
 			f.VarName = naming.ToCamel(f.Name)

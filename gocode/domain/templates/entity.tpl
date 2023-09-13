@@ -10,6 +10,7 @@
 {{$receiver := .ImplReceiver}}
 {{$modifierName := .ModifierName}}
 {{$modifierImplName := .ModifierImplName}}
+{{$validatorPrefix := .ValidatorPrefix}}
 
 type {{$interfaceName}} interface {
 {{range .Fields}} Get{{.Name}}() {{.Type}}
@@ -44,13 +45,13 @@ type {{$modifierName}} interface {
     Error() error
 }
 
-//{{$interfaceName}}_FieldsValidator validate all fields
-type {{$interfaceName}}_FieldsValidator interface {
+//{{$validatorPrefix}}_FieldsValidator validate all fields
+type {{$validatorPrefix}}_FieldsValidator interface {
     ValidateFields(fields *{{$fieldsStructName}}) error
 }
 
 {{range .Fields}}
-type {{$interfaceName}}_{{.Name}}Validator interface {
+type {{$validatorPrefix}}_{{.Name}}Validator interface {
     Validate{{.Name}}({{.VarName}} {{.Type}}) ({{.Type}}, error)
 }
 {{end}}
@@ -120,14 +121,14 @@ func ({{$receiver}} *{{$implName}}) Set{{.Name}}({{.VarName}} {{.Type}}) error {
 
        {{- $validatorName := printf "%s%s" .VarName "Validator"}}
        for _, validator := range {{$receiver}}.validators {
-        if {{$validatorName}}, ok := validator.({{$interfaceName}}_{{.Name}}Validator); ok {
+        if {{$validatorName}}, ok := validator.({{$validatorPrefix}}_{{.Name}}Validator); ok {
                if  {{.VarName}}, err = {{$validatorName}}.Validate{{.Name}}({{.VarName}}); err != nil {
                    return fmt.Errorf("invalid {{.VarName}}: %w", err)
                }
            }
        }
 
-    if validator, ok := any({{$receiver}}).({{$interfaceName}}_{{.Name}}Validator); ok {
+    if validator, ok := any({{$receiver}}).({{$validatorPrefix}}_{{.Name}}Validator); ok {
             if {{.VarName}}, err = validator.Validate{{.Name}}({{.VarName}}); err != nil {
                 return fmt.Errorf("invalid {{.VarName}}: %w", err)
             }
@@ -173,7 +174,7 @@ func (b *{{$builderImplName}}) Build() ({{$interfaceName}}, error) {
     }
 
        for _, validator := range b.impl.validators {
-        if v, ok := validator.({{$interfaceName}}_FieldsValidator); ok {
+        if v, ok := validator.({{$validatorPrefix}}_FieldsValidator); ok {
                if err := v.ValidateFields(&b.impl.fields); err != nil {
                    b.err = err
                    return nil, err
@@ -204,7 +205,7 @@ func (m *{{$modifierImplName}}) Error() error {
     if !m.validatedFields {
         m.validatedFields = true
         for _, validator := range m.impl.validators {
-            if v, ok := validator.({{$interfaceName}}_FieldsValidator); ok {
+            if v, ok := validator.({{$validatorPrefix}}_FieldsValidator); ok {
                    if err := v.ValidateFields(&m.impl.fields); err != nil {
                        m.err = err
                        break
