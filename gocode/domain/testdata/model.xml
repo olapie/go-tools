@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<model jsonNaming="CamelCase" bsonNaming="CamelCase">
+    <import>fmt</import>
+    <import>time</import>
+    <alias type="int64">OrderID</alias>
+    <value name="Order" json="true">
+        <field type="OrderID">ID</field>
+        <field type="time.Time">CreatedAt</field>
+    </value>
+    <entity name="OrderEntity" json="true" bson="true">
+        <field type="OrderID" bson="_id" readonly="true">ID</field>
+        <field type="int">Type</field>
+        <field type="time.Time">CreatedAt</field>
+        <method>DoSomething()</method>
+    </entity>
+    <repo name="OrderRepo">
+        <method>Get(ctx context.Context, id OrderID)(*OrderEntity, error)</method>
+    </repo>
+    <service name="OrderService">
+        <method>Get(ctx context.Context, id OrderID)(*Order, error)</method>
+    </service>
+</model>
