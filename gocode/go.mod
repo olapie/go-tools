@@ -1,4 +1,4 @@
-module gocode
+module go.olapie.com/tools/gocode
 
 go 1.21.1
 

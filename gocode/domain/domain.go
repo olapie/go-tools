@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"go/format"
-	"gocode/domain/templates"
 	"log"
 	"os"
 	"slices"
@@ -14,6 +13,7 @@ import (
 	"text/template"
 
 	"go.olapie.com/naming"
+	"go.olapie.com/tools/gocode/domain/templates"
 	"go.olapie.com/utils"
 )
 
@@ -141,11 +141,9 @@ func parseModel(xmlFilename string) *Model {
 				}
 				tags = append(tags, fmt.Sprintf(`json:"%s,omitempty"`, jsonName))
 			}
-			fmt.Println(f.Name, tags)
 			if len(tags) > 0 {
 				f.Tag = fmt.Sprintf(`%s`, strings.Join(tags, " "))
 			}
-			fmt.Println(f.Name, f.Tag)
 		}
 	}
 
@@ -184,7 +182,7 @@ func parseModel(xmlFilename string) *Model {
 				if f.BSON != "" {
 					tags = append(tags, fmt.Sprintf(`bson:"%s"`, f.BSON))
 				} else {
-					bsonName := naming.ToCamel(f.Name)
+					bsonName := naming.ToCamel(f.Name, naming.WithoutAcronym())
 					if m.BSONNaming == "SnakeCase" {
 						bsonName = naming.ToSnake(f.Name)
 					}
