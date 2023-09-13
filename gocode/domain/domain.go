@@ -99,7 +99,7 @@ func parseModel(xmlFilename string) *Model {
 	if err != nil {
 		panic(err)
 	}
-	m.Imports = append(m.Imports, "context", "fmt", "slices")
+	m.Imports = append(m.Imports, "fmt", "slices")
 	m.Imports = utils.UniqueSlice(m.Imports)
 	sort.Strings(m.Imports)
 	for _, s := range m.Imports {
