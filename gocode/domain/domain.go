@@ -2,7 +2,6 @@ package domain
 
 import (
 	"bytes"
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"go.olapie.com/naming"
@@ -97,9 +96,9 @@ func parseModel(xmlFilename string) *Model {
 	if err != nil {
 		panic(err)
 	}
-
-	jsonData, _ := json.Marshal(m)
-	fmt.Println(string(jsonData))
+	//
+	//jsonData, _ := json.Marshal(m)
+	//fmt.Println(string(jsonData))
 
 	m.Imports = append(m.Imports, "context", "fmt", "slices")
 	m.Imports = utils.UniqueSlice(m.Imports)
@@ -194,7 +193,10 @@ func Generate(xmlFilename, outputGoFilename string) {
 	data, err := format.Source(output.Bytes())
 	if err != nil {
 		fmt.Println(err)
-		fmt.Println(output)
+		err = os.WriteFile("go-code-error.out", output.Bytes(), 0644)
+		if err != nil {
+			log.Fatalln(err)
+		}
 		os.Exit(1)
 	}
 

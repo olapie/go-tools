@@ -12,21 +12,15 @@
 {{$modifierImplName := .ModifierImplName}}
 
 type {{$interfaceName}} interface {
-{{range .Fields}}
-    Get{{.Name}}() {{.Type}}
-    {{ if not .Readonly }}
-    Set{{.Name}}({{.VarName}} {{.Type}}) error
-    {{end}}
+{{range .Fields}} Get{{.Name}}() {{.Type}}
+    {{- if not .Readonly }}
+    Set{{.Name}}({{.VarName}} {{.Type}}) error {{end}}
 {{end}}
-
-{{range .Methods}}
-    {{.}}
+{{range .Methods}}{{.}}
 {{end}}
 
     Dirty() bool
-
     AppendValidator(validator any)
-
     Modifier() {{$modifierName}}
 
     // Unsafe returns underlying fields for efficient read only. DO NOT modify the fields
