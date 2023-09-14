@@ -2,6 +2,7 @@ package domain
 
 import (
 	"bytes"
+	_ "embed"
 	"encoding/xml"
 	"fmt"
 	"go/format"
@@ -16,6 +17,9 @@ import (
 	"go.olapie.com/tools/gocode/domain/templates"
 	"go.olapie.com/utils"
 )
+
+//go:embed testdata/domain.xml
+var ExampleXML string
 
 type Model struct {
 	Imports     []string      `xml:"import"`
