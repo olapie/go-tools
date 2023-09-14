@@ -160,8 +160,7 @@ func New{{$builderName}}(validators ...any) {{$builderName}} {
 func (b *{{$builderImplName}}) With{{.Name}}({{.VarName}} {{.Type}}) {{$builderName}}  {
     if b.err == nil {
         {{if .Readonly}} b.err = b.impl.set{{.Name}}({{.VarName}})
-        {{else}}  b.err = b.impl.Set{{.Name}}({{.VarName}})
-        {{end}}
+        {{else}}  b.err = b.impl.Set{{.Name}}({{.VarName}}) {{end}}
     }
     return b
 }
