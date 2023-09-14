@@ -133,6 +133,9 @@ func parseModel(xmlFilename string) *Model {
 
 	for _, i := range m.Interfaces {
 		sort.Strings(i.Methods)
+		for j, method := range i.Methods {
+			i.Methods[j] = strings.ReplaceAll(method, "\n", "")
+		}
 	}
 
 	for _, v := range m.Structs {
@@ -157,6 +160,11 @@ func parseModel(xmlFilename string) *Model {
 	}
 
 	for _, e := range m.Entities {
+		sort.Strings(e.Methods)
+		for j, method := range e.Methods {
+			e.Methods[j] = strings.ReplaceAll(method, "\n", "")
+		}
+
 		sort.Slice(e.Fields, func(i, j int) bool {
 			return e.Fields[i].Name < e.Fields[j].Name
 		})
