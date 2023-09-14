@@ -14,8 +14,8 @@ import (
 // domainCmd represents the domain command
 var domainCmd = &cobra.Command{
 	Use:   "domain",
-	Short: "Generate domain code",
-	Long: `Generate domain code with XML model. E.g. 
+	Short: "Generate domain model code",
+	Long: `Generate domain model code with XML model. E.g. 
 <?xml version="1.0" encoding="UTF-8" ?>
 <model jsonNaming="SnakeCase" bsonNaming="CamelCase">
     <import>time</import>

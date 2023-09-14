@@ -1,38 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<model jsonNaming="SnakeCase" bsonNaming="CamelCase">
+<domain jsonNaming="SnakeCase" bsonNaming="CamelCase">
     <import>time</import>
     <import>context</import>
     <alias type="string">OrderTitle</alias>
     <simpletype type="int64">OrderID</simpletype>
     <simpletype type="int64">ItemID</simpletype>
     <simpletype type="string">Decimal</simpletype>
-    <struct name="Item" json="true">
-        <field type="ItemID">ID</field>
-        <field type="Decimal">Price</field>
-    </struct>
+    <simpletype type="ItemFields">Item</simpletype>
     <struct name="Order" json="true">
         <field type="OrderID">ID</field>
-        <field type="time.Time">CreatedAt</field>
+        <field type="OrderTitle">Title</field>
+        <field type="[]*Item">Items</field>
+        <field type="time.Time">ExpectedShipmentTime</field>
     </struct>
-    <struct name="ItemEntity" json="true">
+    <entity name="ItemEntity" json="true">
         <field type="ItemID">ID</field>
         <field type="Decimal">Price</field>
-    </struct>
+    </entity>
     <entity name="OrderEntity" json="true" bson="true">
         <field type="OrderID" bson="_id" readonly="true">ID</field>
         <field type="OrderTitle">Title</field>
-        <field type="[]ItemID">ItemIDs</field>
+        <field type="[]ItemID" setIfNil="true">ItemIDs</field>
         <field type="time.Time">ExpectedShipmentTime</field>
-        <field type="time.Time">CreatedAt</field>
         <method>TotalPrice() Decimal</method>
     </entity>
-    <interface name="ItemRepo">
-        <method>Get(ctx context.Context, id ItemID)(*ItemEntity, error)</method>
-    </interface>
+    <entity name="UserEntity" json="true" bson="true">
+        <field type="int64">ID</field>
+        <field type="string" setIfZero="true">Gender</field>
+    </entity>
     <interface name="OrderRepo">
         <method>Get(ctx context.Context, id OrderID)(*OrderEntity, error)</method>
     </interface>
     <interface name="OrderService">
         <method>Get(ctx context.Context, id OrderID)(*Order, error)</method>
     </interface>
-</model>
+</domain>
