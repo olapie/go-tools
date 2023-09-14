@@ -30,6 +30,7 @@ type Model struct {
 	Interfaces  []*Interface  `xml:"interface"`
 	JSONNaming  string        `xml:"jsonNaming,attr"`
 	BSONNaming  string        `xml:"bsonNaming,attr"`
+	Package     string        `json:"package,attr"`
 
 	ShortImports []string
 	LongImports  []string
@@ -102,6 +103,10 @@ func parseModel(xmlFilename string) *Model {
 	err = xml.Unmarshal(data, &m)
 	if err != nil {
 		panic(err)
+	}
+	m.Package = strings.TrimSpace(m.Package)
+	if m.Package == "" {
+		m.Package = "domain"
 	}
 	m.Imports = append(m.Imports, "fmt", "slices")
 	m.Imports = utils.UniqueSlice(m.Imports)

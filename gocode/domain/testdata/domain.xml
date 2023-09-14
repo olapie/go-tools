@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<domain jsonNaming="SnakeCase" bsonNaming="CamelCase">
+<domain jsonNaming="SnakeCase" bsonNaming="CamelCase" package="domain">
     <import>time</import>
     <import>context</import>
     <alias type="string">OrderTitle</alias>
