@@ -118,7 +118,7 @@ func main() {
 	if len(*buildTags) > 0 {
 		tags = strings.Split(*buildTags, ",")
 	}
-	trimPrefixes := strings.Split(*typeNames, *trimprefix)
+	trimPrefixes := strings.Split(*trimprefix, ",")
 
 	// We accept either one directory or a list of files. Which do we have?
 	args := flag.Args()
