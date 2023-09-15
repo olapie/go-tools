@@ -118,7 +118,6 @@ func main() {
 	if len(*buildTags) > 0 {
 		tags = strings.Split(*buildTags, ",")
 	}
-	trimPrefixes := strings.Split(*trimprefix, ",")
 
 	// We accept either one directory or a list of files. Which do we have?
 	args := flag.Args()
@@ -130,8 +129,8 @@ func main() {
 	// Parse the package once.
 	var dir string
 	g := Generator{
-		trimPrefix:  *trimprefix,
-		lineComment: *linecomment,
+		trimPrefixes: strings.Split(*trimprefix, ","),
+		lineComment:  *linecomment,
 	}
 	// TODO(suzmue): accept other patterns for packages (directories, list of files, import paths, etc).
 	if len(args) == 1 && isDirectory(args[0]) {
@@ -153,10 +152,7 @@ func main() {
 	g.Printf("import \"strconv\"\n") // Used by all methods.
 
 	// Run generate for each type.
-	for i, typeName := range types {
-		if i < len(trimPrefixes) {
-			g.trimPrefix = trimPrefixes[i]
-		}
+	for _, typeName := range types {
 		g.generate(typeName)
 	}
 
@@ -190,8 +186,8 @@ type Generator struct {
 	buf bytes.Buffer // Accumulated output.
 	pkg *Package     // Package we are scanning.
 
-	trimPrefix  string
-	lineComment bool
+	trimPrefixes []string
+	lineComment  bool
 
 	logf func(format string, args ...interface{}) // test logging hook; nil when not testing
 }
@@ -208,8 +204,8 @@ type File struct {
 	typeName string  // Name of the constant type.
 	values   []Value // Accumulator for constant values of that type.
 
-	trimPrefix  string
-	lineComment bool
+	trimPrefixes []string
+	lineComment  bool
 }
 
 type Package struct {
@@ -249,10 +245,10 @@ func (g *Generator) addPackage(pkg *packages.Package) {
 
 	for i, file := range pkg.Syntax {
 		g.pkg.files[i] = &File{
-			file:        file,
-			pkg:         g.pkg,
-			trimPrefix:  g.trimPrefix,
-			lineComment: g.lineComment,
+			file:         file,
+			pkg:          g.pkg,
+			trimPrefixes: g.trimPrefixes,
+			lineComment:  g.lineComment,
 		}
 	}
 }
@@ -469,7 +465,12 @@ func (f *File) genDecl(node ast.Node) bool {
 			if c := vspec.Comment; f.lineComment && c != nil && len(c.List) == 1 {
 				v.name = strings.TrimSpace(c.Text())
 			} else {
-				v.name = strings.TrimPrefix(v.originalName, f.trimPrefix)
+				for _, prefix := range f.trimPrefixes {
+					v.name = strings.TrimPrefix(v.originalName, prefix)
+					if v.name != v.originalName {
+						break
+					}
+				}
 			}
 			f.values = append(f.values, v)
 		}
