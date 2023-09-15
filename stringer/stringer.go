@@ -154,7 +154,7 @@ func main() {
 
 	// Run generate for each type.
 	for i, typeName := range types {
-		if i <= len(trimPrefixes) {
+		if i < len(trimPrefixes) {
 			g.trimPrefix = trimPrefixes[i]
 		}
 		g.generate(typeName)
