@@ -8,10 +8,8 @@
     <simpletype type="string">Decimal</simpletype>
     <simpletype type="ItemFields">Item</simpletype>
     <struct name="Order" json="true">
-        <field type="OrderID">ID</field>
-        <field type="OrderTitle">Title</field>
+        <embed>OrderFields</embed>
         <field type="[]*Item">Items</field>
-        <field type="time.Time">ExpectedShipmentTime</field>
     </struct>
     <entity name="ItemEntity" json="true">
         <field type="ItemID">ID</field>

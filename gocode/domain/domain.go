@@ -64,9 +64,10 @@ type EntityField struct {
 }
 
 type StructType struct {
-	Name   string         `xml:"name,attr"`
-	JSON   bool           `xml:"json,attr"`
-	Fields []*StructField `xml:"field"`
+	Name       string         `xml:"name,attr"`
+	JSON       bool           `xml:"json,attr"`
+	Fields     []*StructField `xml:"field"`
+	Embeddings []string       `xml:"embed"`
 }
 
 type StructField struct {
@@ -139,17 +140,19 @@ func parseModel(xmlFilename string) *Model {
 	}
 
 	for _, v := range m.Structs {
+		sort.Strings(v.Embeddings)
 		sort.Slice(v.Fields, func(i, j int) bool {
 			return v.Fields[i].Name < v.Fields[j].Name
 		})
 
 		for _, f := range v.Fields {
-			f.Name = naming.ToPascal(f.Name)
+			originName := f.Name
+			f.Name = naming.ToPascal(originName, naming.WithAcronym())
 			var tags []string
 			if v.JSON {
-				jsonName := naming.ToCamel(f.Name)
+				jsonName := naming.ToCamel(originName)
 				if m.JSONNaming == "SnakeCase" {
-					jsonName = naming.ToSnake(f.Name)
+					jsonName = naming.ToSnake(originName)
 				}
 				tags = append(tags, fmt.Sprintf(`json:"%s,omitempty"`, jsonName))
 			}
@@ -181,17 +184,18 @@ func parseModel(xmlFilename string) *Model {
 		e.ModifierImplName = camel + "ModifierImpl"
 		e.FieldsName = name + "Fields"
 		for _, f := range e.Fields {
-			f.Name = naming.ToPascal(f.Name)
-			f.VarName = naming.ToCamel(f.Name)
+			originName := f.Name
+			f.Name = naming.ToPascal(originName, naming.WithAcronym())
+			f.VarName = naming.ToCamel(originName, naming.WithAcronym())
 			if slices.Contains(reservedNames, f.VarName) {
 				f.VarName += "Val"
 			}
 
 			var tags []string
 			if e.JSON {
-				jsonName := naming.ToCamel(f.Name)
+				jsonName := naming.ToCamel(originName)
 				if m.JSONNaming == "SnakeCase" {
-					jsonName = naming.ToSnake(f.Name)
+					jsonName = naming.ToSnake(originName)
 				}
 				tags = append(tags, fmt.Sprintf(`json:"%s,omitempty"`, jsonName))
 			}
@@ -199,9 +203,9 @@ func parseModel(xmlFilename string) *Model {
 				if f.BSON != "" {
 					tags = append(tags, fmt.Sprintf(`bson:"%s"`, f.BSON))
 				} else {
-					bsonName := naming.ToCamel(f.Name, naming.WithoutAcronym())
+					bsonName := naming.ToCamel(originName)
 					if m.BSONNaming == "SnakeCase" {
-						bsonName = naming.ToSnake(f.Name)
+						bsonName = naming.ToSnake(originName)
 					}
 					tags = append(tags, fmt.Sprintf(`bson:"%s,omitempty"`, bsonName))
 				}
