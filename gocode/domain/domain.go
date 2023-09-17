@@ -172,17 +172,16 @@ func parseModel(xmlFilename string) *Model {
 			return e.Fields[i].Name < e.Fields[j].Name
 		})
 		e.Name = naming.ToPascal(e.Name)
-		name := strings.Replace(e.Name, "Entity", "", 1)
-		e.ValidatorPrefix = name
-		e.BuilderName = name + "Builder"
-		e.ModifierName = name + "Modifier"
+		e.ValidatorPrefix = e.Name
+		e.BuilderName = e.Name + "Builder"
+		e.ModifierName = e.Name + "Modifier"
 
-		camel := naming.ToCamel(name)
+		camel := naming.ToCamel(e.Name)
 		e.ImplReceiver = camel[:1]
 		e.ImplName = camel + "Impl"
 		e.BuilderImplName = camel + "BuilderImpl"
 		e.ModifierImplName = camel + "ModifierImpl"
-		e.FieldsName = name + "Fields"
+		e.FieldsName = e.Name + "Fields"
 		for _, f := range e.Fields {
 			originName := f.Name
 			f.Name = naming.ToPascal(originName, naming.WithAcronym())

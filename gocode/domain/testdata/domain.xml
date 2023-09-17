@@ -6,9 +6,9 @@
     <simpletype type="int64">OrderID</simpletype>
     <simpletype type="int64">ItemID</simpletype>
     <simpletype type="string">Decimal</simpletype>
-    <simpletype type="ItemFields">Item</simpletype>
+    <simpletype type="ItemEntityFields">Item</simpletype>
     <struct name="Order" json="true">
-        <embed>OrderFields</embed>
+        <embed>OrderEntityFields</embed>
         <field type="[]*Item">Items</field>
     </struct>
     <entity name="ItemEntity" json="true">
