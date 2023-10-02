@@ -166,6 +166,11 @@ func parseModel(xmlFilename string) *Model {
 		sort.Strings(e.Methods)
 		for j, method := range e.Methods {
 			e.Methods[j] = strings.ReplaceAll(method, "\n", "")
+			e.Methods[j] = strings.TrimSpace(method)
+		}
+		for _, field := range e.Fields {
+			field.Name = strings.ReplaceAll(field.Name, "\n", "")
+			field.Name = strings.TrimSpace(field.Name)
 		}
 
 		sort.Slice(e.Fields, func(i, j int) bool {
