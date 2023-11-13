@@ -6,7 +6,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"go/format"
-	"io"
 	"log"
 	"os"
 	"slices"
@@ -226,15 +225,7 @@ func parseModel(xmlFilename string) *Model {
 }
 
 func Generate(xmlFilename, outputGoFilename string) {
-	w, err := os.OpenFile(outputGoFilename, os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	generate(xmlFilename, w)
-	err = w.Close()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	generateModel(parseModel(xmlFilename), outputGoFilename)
 }
 
 func GenerateBatch(batchFileName, outputGoFilename string) {
@@ -244,25 +235,39 @@ func GenerateBatch(batchFileName, outputGoFilename string) {
 	}
 
 	lines := strings.Split(string(content), "\n")
-
-	w, err := os.OpenFile(outputGoFilename, os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	var batch *Model
 	for _, line := range lines {
 		xmlFilename := strings.TrimSpace(line)
 		if xmlFilename != "" {
-			generate(xmlFilename, w)
+			m := parseModel(xmlFilename)
+			if batch == nil {
+				batch = m
+			} else {
+				batch.SimpleTypes = append(batch.SimpleTypes, m.SimpleTypes...)
+				batch.Interfaces = append(batch.Interfaces, m.Interfaces...)
+				batch.Aliases = append(batch.Aliases, m.Aliases...)
+				batch.Entities = append(batch.Entities, m.Entities...)
+				batch.Structs = append(batch.Structs, m.Structs...)
+
+				batch.Imports = append(batch.Imports, m.Imports...)
+				sort.Strings(batch.Imports)
+				slices.Compact(batch.Imports)
+
+				batch.ShortImports = append(batch.ShortImports, m.ShortImports...)
+				sort.Strings(batch.ShortImports)
+				slices.Compact(batch.ShortImports)
+
+				batch.LongImports = append(batch.LongImports, m.LongImports...)
+				sort.Strings(batch.LongImports)
+				slices.Compact(batch.LongImports)
+			}
 		}
 	}
-	err = w.Close()
-	if err != nil {
-		log.Fatalln(err)
-	}
+
+	generateModel(batch, outputGoFilename)
 }
 
-func generate(xmlFilename string, w io.Writer) {
-	m := parseModel(xmlFilename)
+func generateModel(m *Model, outputGoFilename string) {
 	//
 	//jsonData, _ := json.Marshal(m)
 	//fmt.Println(string(jsonData))
@@ -287,7 +292,7 @@ func generate(xmlFilename string, w io.Writer) {
 		os.Exit(1)
 	}
 
-	if _, err = w.Write(data); err != nil {
+	if err := os.WriteFile(outputGoFilename, data, 0644); err != nil {
 		log.Fatalln(err)
 	}
 }
