@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"go.olapie.com/tools/gocode/domain"
 	"go.olapie.com/utils"
+	"strings"
 )
 
 // domainCmd represents the domain command
@@ -19,7 +20,11 @@ var domainCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		inputFilename := utils.MustGet(cmd.Flags().GetString("filename"))
 		outputFilename := utils.MustGet(cmd.Flags().GetString("output"))
-		domain.Generate(inputFilename, outputFilename)
+		if strings.HasSuffix(inputFilename, ".xml") {
+			domain.Generate(inputFilename, outputFilename)
+		} else {
+			domain.GenerateBatch(inputFilename, outputFilename)
+		}
 	},
 }
 
