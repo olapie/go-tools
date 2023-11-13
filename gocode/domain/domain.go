@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"go/format"
+	"io"
 	"log"
 	"os"
 	"slices"
@@ -225,6 +226,42 @@ func parseModel(xmlFilename string) *Model {
 }
 
 func Generate(xmlFilename, outputGoFilename string) {
+	w, err := os.OpenFile(outputGoFilename, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	generate(xmlFilename, w)
+	err = w.Close()
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func GenerateBatch(batchFileName, outputGoFilename string) {
+	content, err := os.ReadFile(batchFileName)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	lines := strings.Split(string(content), "\n")
+
+	w, err := os.OpenFile(outputGoFilename, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for _, line := range lines {
+		xmlFilename := strings.TrimSpace(line)
+		if xmlFilename != "" {
+			generate(xmlFilename, w)
+		}
+	}
+	err = w.Close()
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func generate(xmlFilename string, w io.Writer) {
 	m := parseModel(xmlFilename)
 	//
 	//jsonData, _ := json.Marshal(m)
@@ -250,8 +287,7 @@ func Generate(xmlFilename, outputGoFilename string) {
 		os.Exit(1)
 	}
 
-	err = os.WriteFile(outputGoFilename, data, 0644)
-	if err != nil {
+	if _, err = w.Write(data); err != nil {
 		log.Fatalln(err)
 	}
 }
