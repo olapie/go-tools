@@ -30,7 +30,7 @@ type Model struct {
 	Interfaces  []*Interface  `xml:"interface"`
 	JSONNaming  string        `xml:"jsonNaming,attr"`
 	BSONNaming  string        `xml:"bsonNaming,attr"`
-	Package     string        `json:"package,attr"`
+	Package     string        `xml:"package,attr"`
 
 	ShortImports []string
 	LongImports  []string
