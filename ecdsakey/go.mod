@@ -10,7 +10,9 @@ require (
 
 require (
 	github.com/google/uuid v1.6.0 // indirect
+	go.olapie.com/x/xbase62 v0.1.1 // indirect
 	go.olapie.com/x/xreflect v0.1.0 // indirect
+	go.olapie.com/x/xsecurity v0.1.5 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/term v0.20.0 // indirect
 )

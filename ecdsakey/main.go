@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"go.olapie.com/security"
 	"go.olapie.com/x/xconv"
+	"go.olapie.com/x/xsecurity"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -21,15 +21,15 @@ func main() {
 		log.Println("Password is too short")
 		return
 	}
-	pk := xconv.MustGet(security.GeneratePrivateKey())
-	pri := xconv.MustGet(security.EncodePrivateKey(pk, pass))
-	pub := xconv.MustGet(security.EncodePublicKey(&pk.PublicKey))
+	pk := xconv.MustGet(xsecurity.GeneratePrivateKey(xsecurity.EcdsaP256))
+	pri := xconv.MustGet(xsecurity.EncodePrivateKey(pk, pass))
+	pub := xconv.MustGet(xsecurity.EncodePublicKey(xsecurity.GetPublicKey(pk)))
 	name := time.Now().Format("20060102")
 	_ = os.WriteFile(name+"-key.png", pri, 0644)
 	_ = os.WriteFile(name+"-pub.png", pub, 0644)
 
-	pubKey := xconv.MustGet(security.DecodePublicKey(pub))
-	priKey := xconv.MustGet(security.DecodePrivateKey(pri, pass))
+	pubKey := xconv.MustGet(xsecurity.DecodePublicKey(pub)).(*ecdsa.PublicKey)
+	priKey := xconv.MustGet(xsecurity.DecodePrivateKey(pri, pass)).(*ecdsa.PrivateKey)
 
 	// Test
 	hash := sha256.Sum256([]byte("message: hello"))
